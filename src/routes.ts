@@ -1,6 +1,8 @@
 import { Router } from "express";
 import authRoutes from "@modules/auth/auth.routes";
 import usersRouter from "@modules/users/user.routes";
+import appointmentRouter from "./modules/appointment/appointment.routes";
+import classRouter from "./modules/classService/class.routes";
 import { apiVersion } from "@utils/consts";
 
 class RootRoutes {
@@ -27,6 +29,8 @@ class RootRoutes {
 		// Module apis
 		this.router.use(`${apiVersion}/auth`, authRoutes);
 		this.router.use(`${apiVersion}/users`, usersRouter);
+		this.router.use(`${apiVersion}/services/appointments`, appointmentRouter);
+		this.router.use(`${apiVersion}/services/class`, classRouter);
 
 		// Catch all unmatched routes
 		this.router.all("*", (_, res) => res.status(404).send("Route not found"));

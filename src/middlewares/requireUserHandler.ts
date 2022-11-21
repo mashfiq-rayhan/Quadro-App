@@ -9,6 +9,7 @@ import { StatusCodes } from "http-status-codes";
  *
  * @returns void
  */
+
 const requireUserHandler = (req: Request, res: Response, next: NextFunction): void => {
 	const { userId } = req;
 

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/typedef */
 export class ErrorCodes {
 	public static readonly Unauthenticated = "Unauthenticated";
 	public static readonly Unauthorized = "Unauthorized";
@@ -11,4 +12,5 @@ export class ErrorCodes {
 	public static readonly JwtError = "JwtError";
 	public static readonly AsyncError = "AsyncError";
 	public static readonly UnknownError = "UnknownError";
+	public static readonly InvalidID = "InvalidID";
 }
