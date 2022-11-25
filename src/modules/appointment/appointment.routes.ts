@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createAppointmentSchema, appointmentParamsSchema, updateAppointmentSchema } from "./appointment.schema";
 import { validateResource } from "@src/middlewares";
 import * as appointmentController from "./appointment.controllers";
+import requireUserHandler from "@src/middlewares/requireUserHandler";
 
 const appointmentRouter: Router = Router();
 
@@ -27,6 +28,8 @@ appointmentRouter.get("/info", (_, res) =>
 );
 
 appointmentRouter.get("/", appointmentController.handelGetAll);
+
+appointmentRouter.get("/auth-test", [requireUserHandler], (_, res) => res.status(200).send("Appointment router OK"));
 
 appointmentRouter.get("/:id", [validateResource(appointmentParamsSchema)], appointmentController.handelGet);
 

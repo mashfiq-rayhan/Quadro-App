@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import log from "../providers/logger.provider";
-import authService from "../modules/auth/auth.services";
+// import authMongoService from "@modules/auth/auth.services.mongo";
+import authMongoService from "@modules/auth/auth.services";
 import { IJwtPayload } from "../common/types/jwt.types";
 import { CustomError } from "../errors/CustomError";
 import { ErrorCodes } from "../errors/ErrorCodes";
@@ -28,7 +29,8 @@ const tokenHandler = (req: Request, res: Response, next: NextFunction): void => 
 				);
 
 			// Verify access token
-			const decoded = authService.verifyToken<IJwtPayload>(accessToken, "access_token_public_key");
+			// const decoded = authMongoService.verifyToken<IJwtPayload>(accessToken, "access_token_public_key");
+			const decoded = authMongoService.verifyToken<IJwtPayload>(accessToken, "access_token_public_key");
 			if (decoded) {
 				// Extend in global req object
 				// Type is declared in app

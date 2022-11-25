@@ -23,6 +23,7 @@ import { IJwtPayload } from "@common/types/jwt.types";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
 import { ErrorArgs } from "@src/errors/ErrorArgs";
+
 import tokenHandler from "@middlewares/tokenHandler";
 
 class App {
@@ -55,7 +56,7 @@ class App {
 	};
 
 	private initializeDatabaseConnections = async (): Promise<void> => {
-		await connectMongo();
+		// await connectMongo();
 	};
 
 	private initializeMiddlewares = (): void => {
@@ -129,7 +130,7 @@ app.listen();
 declare global {
 	namespace Express {
 		export interface Request {
-			userId?: string;
+			userId?: number;
 			jwt?: IJwtPayload;
 		}
 	}

@@ -1,32 +1,27 @@
-import * as servicesService from "../serviceInformation/service.services";
 import log from "@providers/logger.provider";
-import { ClassOutput, ClassDto, ClassDocument, ClassID } from "./class.interfaces";
-import { ServiceOutput } from "../serviceInformation/service.interface";
+import { ClassOutput, ClassDto, ClassDocument } from "./class.interfaces";
 import * as classMapper from "./class.mapper";
 import * as classDal from "./class.dal";
-import { CreateClassDto } from "./class.schema";
 
 export async function createClass(payload: ClassDto): Promise<ClassOutput> {
-	const newService: ServiceOutput = await servicesService.createService(payload);
-	const newClass: ClassDocument = await classDal.create(
-		classMapper.toClassInput({ ...payload, serviceId: newService._id }),
-	);
-	if (!newClass) throw Error("Failed Creating Class"); // TODO Throw a fallback to service
-	return classMapper.toClassOutput(newClass, newService);
+	log.info("Creating New Class");
+	const newClass = await classDal.create(classMapper.toClassInput({ ...payload }));
+	if (!newClass) throw Error("Failed Creating Class");
+	return classMapper.toClassOutput(newClass);
 }
 
 export async function updateClass(id: string, payload: ClassDto): Promise<ClassOutput> {
+	log.info("Updating Class Info");
 	const updatedClass = await classDal.update(id, classMapper.toClassInput(payload));
-	log.info("Class Updated ---- Updating Service Info");
-	const updatedService = await servicesService.updateService(updatedClass.serviceId, payload);
-
-	return classMapper.toClassOutput(updatedClass, updatedService);
+	return classMapper.toClassOutput(updatedClass);
 }
 
-export async function getClassById(id: ClassID): Promise<ClassOutput> {
+export async function getClassById(id: string): Promise<ClassOutput> {
+	log.info("Getting Single Class ");
+
 	try {
 		const targerClass = await classDal.getById(id);
-		return await populateWithServiceInformation(targerClass);
+		return classMapper.toClassOutput(targerClass);
 	} catch (error) {
 		log.error(`Getting Class Failed Error => ${error} `);
 		throw error;
@@ -37,21 +32,13 @@ export async function getAllClasss(): Promise<Array<ClassOutput>> {
 	const ClasssList: Array<ClassDocument> = await classDal.getAll();
 	const populatedClasssList: Array<ClassOutput> = [];
 
-	for await (const iterator of ClasssList) {
-		const populatedClass = await populateWithServiceInformation(iterator);
-		populatedClasssList.push(populatedClass);
+	for (const iterator of ClasssList) {
+		populatedClasssList.push(classMapper.toClassOutput(iterator));
 	}
 
 	return populatedClasssList;
 }
 
-export async function deleteClass(id: ClassID): Promise<void> {
-	const targetClass = await classDal.getById(id);
-	await classDal.deleteById(targetClass._id);
-	await servicesService.deleteServiceById(targetClass.serviceId);
-}
-
-async function populateWithServiceInformation(payload: ClassDocument): Promise<ClassOutput> {
-	const targerService = await servicesService.getServiceById(String(payload.serviceId));
-	return classMapper.toClassOutput(payload, targerService);
+export async function deleteClass(id: string): Promise<void> {
+	await classDal.deleteById(id);
 }

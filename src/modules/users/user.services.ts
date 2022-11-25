@@ -1,33 +1,52 @@
-import argon2 from "argon2";
-import UserModel, { User } from "./user.model";
-import { CreateUserDto, CreateUserGoogleDto, UserDoc } from "./user.schema";
+import { CreateUserDto } from "@modules/users/user.schema";
 import log from "@providers/logger.provider";
-import { GenericServices } from "@src/shared/generics/generic.services";
+import prisma from "@providers/prisma.provider";
+import argon2 from "argon2";
+import { v4 as uuid } from "uuid";
+import { Prisma } from "@prisma/client";
 
-export class UsersService extends GenericServices<UserDoc> {
-	public createUser = async (data: CreateUserDto): Promise<User> => {
+export class UserServices {
+	public createUser = async (data: CreateUserDto) => {
 		log.info("[service] createUser");
 
-		return UserModel.create(data);
+		const { passwordConfirmation, ...userInput } = data;
+		userInput.password = await argon2.hash(userInput.password);
+
+		return await prisma.user.create({ data: { ...userInput, verificationCode: uuid() } });
 	};
 
-	public createUserGoogle = async (data: CreateUserGoogleDto): Promise<User> => {
+	public createUserGoogle = async (data: Prisma.UserCreateInput) => {
 		log.info("[service] createUserGoogle");
 
-		return UserModel.create({ ...data, verified: true });
+		return await prisma.user.create({ data: { ...data, verified: true } });
 	};
 
-	public findUserById = async (id: string): Promise<UserDoc | undefined> => {
-		log.info("[service] findUserById");
+	public updateUserGoogle = async (data: Prisma.UserUpdateInput) => {
+		log.info("[service] updateUserGoogle");
 
-		const user = await this.findById(id, { password: 0, verificationCode: 0 });
+		return await prisma.user.update({
+			where: { email: data.email as string },
+			data: { ...data, verified: true },
+		});
+	};
 
+	public findOne = async (filter: Prisma.UserFindFirstArgs) => {
+		log.info("[service] findOne");
+
+		const user = await prisma.user.findFirst(filter);
 		if (user) return user;
 	};
 
-	public findUserByEmail = async (email: string): Promise<UserDoc | undefined> => {
+	public findUserById = async (id: number) => {
+		log.info("[service] findUserById");
+
+		const user = await prisma.user.findFirst({ where: { id } });
+		if (user) return user;
+	};
+
+	public findUserByEmail = async (email: string) => {
 		log.info("[service] findUserByEmail");
-		const user = await this.findOne({ email }, { password: 0, verificationCode: 0 });
+		const user = await prisma.user.findFirst({ where: { email } });
 		if (user) return user;
 	};
 
@@ -43,6 +62,5 @@ export class UsersService extends GenericServices<UserDoc> {
 	};
 }
 
-const usersService: UsersService = new UsersService(UserModel);
-
-export default usersService;
+const userServices: UserServices = new UserServices();
+export default userServices;

@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
-import { ServiceOutput } from "../serviceInformation/service.interface";
 import { CreateClassDto } from "./class.schema";
+import { Class, Service, ClassRepeat } from "@prisma/client";
+import { ServiceInput } from "@src/common/types/serviceInformation.types";
 
 // TODO change basic info to serviceId
 export interface ClassRepeatInput {
@@ -21,32 +21,23 @@ export interface ClassRepeatDto {
 
 // FOR DB CHANGE
 export interface ClassRepeatDocument extends Required<ClassRepeatInput> {
-	_id: Types.ObjectId;
-	classId: Types.ObjectId;
+	id: string;
+	classId: string;
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 }
 
-// TODO: ClassRepeatInput to Object Id after DB Change
-export interface ClassInput {
-	serviceId: Types.ObjectId;
-	maxNumberOfParticipants: number;
-	duration?: number;
-	classRepeatId?: ClassRepeatInput;
-	startDateAndTime?: Date;
-	endDate?: Date;
-	published?: boolean;
-	active?: boolean;
+export interface ClassInput extends Omit<Class, "id" | "createdAt" | "updatedAt" | "serviceId" | "repeatId"> {
+	service: ServiceInput;
+	repeat: Omit<ClassRepeat, "id">;
 }
 
-export interface ClassDocument extends Required<ClassInput> {
-	_id: Types.ObjectId;
-	readonly createdAt: Date;
-	readonly updatedAt: Date;
-}
+export type ClassDocument = Class & {
+	service: Service;
+	repeat: ClassRepeat;
+};
 
 export interface ClassDto extends CreateClassDto {
-	serviceId: Types.ObjectId;
 	startDateAndTime: Date;
 	repeat: ClassRepeatDto;
 	endDate: Date;
@@ -56,10 +47,7 @@ export interface ClassDto extends CreateClassDto {
 }
 
 export interface ClassOutput
-	extends Omit<ClassDocument, "active" | "classRepeatId" | "serviceId">,
-		Omit<ServiceOutput, "_id" | "createdAt" | "updatedAt"> {
-	description: string;
+	extends Omit<ClassDocument, "service" | "repeat" | "serviceId" | "repeatId">,
+		Omit<Service, "id"> {
 	repeat: ClassRepeatDto;
 }
-
-export type ClassID = string | Types.ObjectId;

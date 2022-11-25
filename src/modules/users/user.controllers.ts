@@ -1,13 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { CreateUserDto } from "./user.schema";
-import usersService, { UsersService } from "./user.services";
+import usersMongoService, { UsersMongoService } from "./user.services.mongo";
 import log from "@providers/logger.provider";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
+import userServices, { UserServices } from "@modules/users/user.services";
 
 export class UsersController {
-	private usersService: UsersService = usersService;
+	private usersMongoService: UsersMongoService = usersMongoService;
+	private userServices: UserServices = userServices;
 
 	public createNewUser = async (
 		req: Request<{}, {}, CreateUserDto>,
@@ -16,8 +18,8 @@ export class UsersController {
 	): Promise<Response | void> => {
 		log.info("[controller] createNewUser");
 		const body = req.body;
-
-		const existingUser = await this.usersService.findUserByEmail(body.email);
+		const existingUser = await this.userServices.findUserByEmail(body.email);
+		console.log("existing users", existingUser);
 		if (existingUser) {
 			return next(
 				new CustomError({
@@ -29,9 +31,10 @@ export class UsersController {
 		}
 
 		try {
-			const user = await this.usersService.createUser(body);
+			const user = await this.userServices.createUser(body);
 			return res.status(201).json(user);
 		} catch (error: any) {
+			console.log(error);
 			if (error.code === 11000) {
 				return next(
 					new CustomError({

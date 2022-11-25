@@ -1,7 +1,7 @@
 import { Socket } from "socket.io";
 import { ISocket } from "@common/types/socket.types";
 import log from "@providers/logger.provider";
-import authService from "@modules/auth/auth.services";
+import authMongoService from "@modules/auth/auth.services.mongo";
 import { IJwtPayload } from "@common/types/jwt.types";
 
 export class AuthSocket implements ISocket {
@@ -22,7 +22,7 @@ export class AuthSocket implements ISocket {
 		const auth_header = socket.handshake.headers.authorization;
 
 		if (auth_header) {
-			const payload: IJwtPayload | undefined = authService.verifyToken(auth_header);
+			const payload: IJwtPayload | undefined = authMongoService.verifyToken(auth_header);
 
 			if (payload) {
 				next();

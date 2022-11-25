@@ -2,16 +2,16 @@ import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
 import log from "@providers/logger.provider";
-import usersService, { UsersService } from "@modules/users/user.services";
 import { LoginDto } from "./auth.schema";
-import authService, { AuthServices } from "./auth.services";
-import { UserDoc } from "@modules/users/user.schema";
+import { IUser, UserDoc } from "@modules/users/user.schema";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
+import userServices, { UserServices } from "@modules/users/user.services";
+import authService, { AuthServices } from "@modules/auth/auth.services";
 
 export class AuthController {
-	private usersService: UsersService = usersService;
 	private authService: AuthServices = authService;
+	private userServices: UserServices = userServices;
 
 	public protectedRoute = async (req: Request, res: Response): Promise<Response> => {
 		return res.status(200).send("Protected route");
@@ -25,9 +25,8 @@ export class AuthController {
 		log.info("[controller] authenticateUser");
 
 		const body = req.body;
-
 		// Find user by email
-		const user = await this.usersService.findUserByEmail(body.email);
+		const user = await this.userServices.findUserByEmail(body.email);
 
 		if (!user) {
 			log.error("[error] user not found");
@@ -52,7 +51,7 @@ export class AuthController {
 		}
 
 		// Verify password
-		const isValid = await this.usersService.verifyUserPassword(user.password, body.password);
+		const isValid = await this.userServices.verifyUserPassword(user.password, body.password);
 
 		if (!isValid) {
 			log.error("[error] Invalid credentials");
@@ -66,7 +65,7 @@ export class AuthController {
 		}
 
 		const minutes = 20;
-		const accessToken = this.authService.signAccessToken(user?.toJSON(), minutes);
+		const accessToken = this.authService.signAccessToken(user, minutes);
 		const refreshToken = await this.authService.signRefreshToken(user);
 
 		log.info("[success] Access and refresh token generated");
@@ -98,7 +97,7 @@ export class AuthController {
 	public authenticateGoogleUser = async (req, res, next): Promise<Response> => {
 		log.info("[controller] authenticateGoogleUser");
 
-		const user: UserDoc = req.user;
+		const user: IUser = req.user;
 
 		if (!user) {
 			log.error("[error] user not found");
@@ -112,7 +111,7 @@ export class AuthController {
 		}
 
 		const minutes = 20;
-		const accessToken = this.authService.signAccessToken(user?.toJSON(), minutes);
+		const accessToken = this.authService.signAccessToken(user, minutes);
 		const refreshToken = await this.authService.signRefreshToken(user);
 
 		log.info("[success] Access and refresh token generated");
@@ -150,8 +149,8 @@ export class AuthController {
 
 		try {
 			if (userId) {
-				const user = await this.usersService.findUserById(userId);
-				if (user) return res.status(200).send(user.toJSON());
+				const user = await this.userServices.findUserById(userId);
+				if (user) return res.status(200).send(user);
 				else
 					return next(
 						new CustomError({
@@ -184,7 +183,7 @@ export class AuthController {
 				}),
 			);
 
-		const decoded = await this.authService.verifyToken<{ session: string; iat: number }>(
+		const decoded = await this.authService.verifyToken<{ session: number; iat: number }>(
 			refreshToken,
 			"refresh_token_public_key",
 		);
@@ -209,7 +208,7 @@ export class AuthController {
 				}),
 			);
 
-		const user = await this.usersService.findUserById(String(session.user));
+		const user = await this.userServices.findUserById(session.userId);
 
 		if (!user)
 			return next(
@@ -221,7 +220,7 @@ export class AuthController {
 			);
 
 		const minutes = 20;
-		const accessToken = this.authService.signAccessToken(user.toJSON(), minutes);
+		const accessToken = this.authService.signAccessToken(user, minutes);
 
 		log.info("[success] Access token generated");
 

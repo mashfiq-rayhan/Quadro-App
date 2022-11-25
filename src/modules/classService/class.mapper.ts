@@ -1,5 +1,5 @@
+import { ServiceInput } from "@src/common/types/serviceInformation.types";
 import { ClassInput, ClassOutput, ClassDocument, ClassRepeatInput } from "./class.interfaces";
-import { ServiceOutput } from "../serviceInformation/service.interface";
 import { ClassDto } from "./class.interfaces";
 
 export function toClassInput(payload: ClassDto): ClassInput {
@@ -7,32 +7,40 @@ export function toClassInput(payload: ClassDto): ClassInput {
 		week: payload.repeat.week,
 		...classRepeatMapper(payload.repeat.days),
 	};
+
+	const serviceInformation: ServiceInput = {
+		name: payload.name,
+		description: payload.description,
+		location: payload.location,
+		price: payload.price,
+	};
+
 	return {
-		serviceId: payload.serviceId,
 		duration: payload.duration,
 		published: payload.published ? payload.published : false,
-		classRepeatId: classRepeatInput,
+		repeat: classRepeatInput,
+		service: serviceInformation,
 		maxNumberOfParticipants: payload.maxNumberOfParticipants,
 		startDateAndTime: payload.startDateAndTime,
 		endDate: payload.endDate,
 	};
 }
 
-export function toClassOutput(classData: ClassDocument, service: ServiceOutput): ClassOutput {
+export function toClassOutput(classData: ClassDocument): ClassOutput {
 	return {
-		_id: classData._id,
-		name: service.name,
-		description: service.description ? service.description : "",
-		price: service.price,
-		location: service.location,
+		id: classData.id,
+		name: classData.service.name,
+		description: classData.service.description ? classData.service.description : "",
+		price: classData.service.price,
+		location: classData.service.location,
 		duration: classData.duration,
 		published: classData.published,
 		maxNumberOfParticipants: classData.maxNumberOfParticipants,
 		startDateAndTime: classData.startDateAndTime,
 		endDate: classData.endDate,
 		repeat: {
-			week: classData.classRepeatId.week,
-			days: classRepeatToOutputMapper(classData.classRepeatId),
+			week: classData.repeat.week,
+			days: classRepeatToOutputMapper(classData.repeat),
 		},
 		updatedAt: classData.updatedAt,
 		createdAt: classData.createdAt,
@@ -61,9 +69,9 @@ function classRepeatMapper(payload: Array<string>): Omit<ClassRepeatInput, "week
 
 function classRepeatToOutputMapper(payload: ClassRepeatInput | any): Array<string> {
 	const days: Array<string> = [];
-	const data = payload.toObject();
+	const data = payload;
 	for (const key in data) {
-		if (data[key] && key !== "week") {
+		if (data[key] && key !== "week" && key !== "id") {
 			days.push(key);
 		}
 	}

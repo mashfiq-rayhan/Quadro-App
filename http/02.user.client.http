@@ -1,0 +1,15 @@
+@hostname = {{$dotenv HOSTNAME}}
+@port = {{$dotenv PORT}}
+@host = {{hostname}}:{{port}}
+
+### Create User
+# @name create_user
+POST {{host}}/api/v1/users
+Content-Type: application/json
+
+{
+	"email": "php.chandan@gmail.com",
+	"name": "Hasib",
+	"password": "10091986",
+	"passwordConfirmation": "10091986"
+}

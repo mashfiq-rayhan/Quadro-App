@@ -1,0 +1,150 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  email             String   @unique
+  name              String   @db.VarChar(255)
+  password          String?
+  verificationCode  String?
+  passwordResetCode String?
+  verified          Boolean  @default(false)
+  method            String?
+  googleId          String?
+  profilePicture    String?  @db.VarChar(1000)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  session           Session?
+
+  @@map("users")
+}
+
+model Session {
+  id        Int      @id @default(autoincrement())
+  valid     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int      @unique
+  user      User     @relation(fields: [userId], references: [id])
+
+  @@map("sessions")
+}
+
+model Appointment {
+  id                String   @id @unique @default(uuid())
+
+  duration          Int
+  published         Boolean  @default(false)
+  depositAmount     Int?     @default(0)
+  paymentAcceptType String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  service           Service  @relation(fields: [serviceId], references: [id])
+  serviceId         String   @unique
+
+  @@map("appointments")
+}
+
+model Service {
+  	id          String       @id @unique @default(uuid())
+
+  	name        String
+  	description String?
+  	location    String?	   @default("To be determined")
+  	price       Int
+
+  	appointment Appointment?
+  	class		  Class?
+  	booking	Booking?
+
+  	@@map("services")
+}
+
+model ClassRepeat {
+  	id          String   @id @unique @default(uuid())
+
+	week 		Int
+	monday 		Boolean  @default(false)
+	tuesday 	Boolean  @default(false)
+	wednesday 	Boolean  @default(false)
+	thursday 	Boolean  @default(false)
+	friday 		Boolean  @default(false)
+	saturday 	Boolean  @default(false)
+	sunday 		Boolean  @default(false)
+
+	class		Class?
+
+  	@@map("class_repeats")
+}
+
+model Class {
+  id                		String   	@id @unique @default(uuid())
+
+  maxNumberOfParticipants	Int
+  duration          		Int?
+  published         		Boolean?  	@default(false)
+  startDateAndTime         	DateTime?
+  endDate         			DateTime?
+
+  createdAt         		DateTime? 	@default(now())
+  updatedAt         		DateTime? 	@updatedAt
+
+  service           		Service  	@relation(fields: [serviceId], references: [id])
+  serviceId         		String   	@unique
+
+  repeat           			ClassRepeat @relation(fields: [repeatId], references: [id])
+  repeatId         			String  	@unique
+
+  @@map("classes")
+}
+
+enum BookingType {
+	APPOINTMENT
+	CLASS
+}
+
+model Booking {
+	id                		String   	@id @unique @default(uuid())
+
+	bookingTime		        DateTime?
+	service           		Service 		@relation(fields: [serviceId], references: [id])
+  	serviceId         		String  		@unique
+	bookingType				BookingType
+	note					String?		@default("")
+	active					Boolean		@default(true)
+
+  	createdAt         		DateTime? 	@default(now())
+ 	updatedAt         		DateTime? 	@updatedAt
+
+	order 					Order?
+
+  	@@map("bookings")
+}
+
+enum PaymentStatus {
+	PAID
+	UNPAID
+	CANCELED
+	REFUNDED
+}
+
+model Order {
+	id                		String   		@id @unique @default(uuid())
+
+	booking           		Booking 		@relation(fields: [bookingId], references: [id])
+  	bookingId         		String  		@unique
+	paymentStatus			PaymentStatus	@default(UNPAID)
+
+	createdAt         		DateTime? 		@default(now())
+ 	updatedAt         		DateTime? 		@updatedAt
+
+  	@@map("orders")
+}

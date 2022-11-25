@@ -5,7 +5,7 @@ export interface IJwtObject {
 }
 
 export interface IJwtPayload {
-	sub: string;
+	sub: number;
 	email: string;
 	name: string;
 	iat: number;

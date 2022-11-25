@@ -5,7 +5,7 @@ import argon2 from "argon2";
 import { v4 as uuid } from "uuid";
 import { omit } from "lodash";
 import { Exclude } from "class-transformer";
-import usersService from "./user.services";
+import usersMongoService from "./user.services.mongo";
 
 @modelOptions({
 	schemaOptions: {
@@ -62,7 +62,7 @@ export class User {
 	public profilePicture: string;
 
 	public async validatePassword(this: DocumentType<User>, userPassword: string): Promise<boolean> {
-		return await usersService.verifyUserPassword(this.password, userPassword);
+		return await usersMongoService.verifyUserPassword(this.password, userPassword);
 	}
 
 	public toJSON(this: DocumentType<User>): FlattenMaps<Partial<User>> {

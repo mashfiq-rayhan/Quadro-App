@@ -10,7 +10,6 @@ import { ErrorCodes } from "../../errors/ErrorCodes";
 
 export async function handelCreate(request: Request<{}, {}, ClassDto>, response: Response): Promise<Response> {
 	try {
-		// console.log(request.body);
 		const newAppointment = await classService.createClass(request.body);
 		return response.status(StatusCodes.CREATED).json(responseObject(newAppointment));
 	} catch (error) {

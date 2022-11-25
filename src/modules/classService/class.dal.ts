@@ -1,36 +1,87 @@
-import { ClassInput, ClassDocument, ClassID } from "./class.interfaces";
-import ClassModel from "./class.model";
-import { HydratedDocument } from "mongoose";
+import { ClassInput, ClassDocument } from "./class.interfaces";
 import { ErrorCodes } from "../../errors/ErrorCodes";
+import prisma from "@providers/prisma.provider";
 
-export async function create(payload: ClassInput): Promise<HydratedDocument<ClassDocument>> {
-	const newClass = await ClassModel.create(payload);
-	return newClass;
-}
-
-export async function getById(id: ClassID): Promise<ClassDocument> {
-	const newClass = await ClassModel.findById(id);
-	if (!newClass) throw Error(ErrorCodes.NotFound);
-	return newClass;
-}
-
-export async function update(id: ClassID, payload: ClassInput): Promise<ClassDocument> {
-	const updatedClass = await ClassModel.findByIdAndUpdate(
-		id,
-		{
-			$set: payload,
+export async function create(payload: ClassInput): Promise<ClassDocument> {
+	// const newClass = await ClassModel.create(payload);
+	// return newClass;
+	const newAppointment = await prisma.class.create({
+		data: {
+			maxNumberOfParticipants: payload.maxNumberOfParticipants,
+			duration: payload.duration,
+			published: payload.published,
+			startDateAndTime: payload.startDateAndTime,
+			endDate: payload.endDate,
+			service: {
+				create: {
+					name: payload.service.name,
+					description: payload.service.description,
+					location: payload.service.location,
+					price: payload.service.price,
+				},
+			},
+			repeat: {
+				create: payload.repeat,
+			},
 		},
-		{ new: true },
-	).exec();
-	if (!updatedClass) throw Error(ErrorCodes.NotFound);
+		include: { service: true, repeat: true },
+	});
+	console.log("In DAL :: return => ", newAppointment);
+	return newAppointment;
+}
+
+export async function getById(id: string): Promise<ClassDocument> {
+	const targetClass = await prisma.class.findUnique({
+		where: {
+			id: id,
+		},
+		include: { service: true, repeat: true },
+	});
+	if (!targetClass) throw Error(ErrorCodes.NotFound);
+	return targetClass;
+}
+
+export async function update(id: string, payload: ClassInput): Promise<ClassDocument> {
+	const targetClass = await getById(id);
+
+	const updatedClass = await prisma.class.update({
+		where: {
+			id: targetClass.id,
+		},
+		data: {
+			maxNumberOfParticipants: payload.maxNumberOfParticipants,
+			duration: payload.duration,
+			published: payload.published,
+			startDateAndTime: payload.startDateAndTime,
+			endDate: payload.endDate,
+			service: {
+				update: payload.service,
+			},
+			repeat: {
+				update: payload.repeat,
+			},
+		},
+		include: { service: true, repeat: true },
+	});
 	return updatedClass;
 }
 
 export async function getAll(): Promise<Array<ClassDocument>> {
-	const ClasssList = await ClassModel.find({});
-	return ClasssList;
+	const classList = await prisma.class.findMany({ include: { service: true, repeat: true } });
+	return classList;
 }
 
-export async function deleteById(id: ClassID): Promise<void> {
-	await ClassModel.findByIdAndDelete(id);
+export async function deleteById(id: string): Promise<void> {
+	const targetClass = await getById(id);
+
+	await prisma.class.delete({
+		where: {
+			id: id,
+		},
+	});
+	await prisma.service.delete({
+		where: {
+			id: targetClass.service.id,
+		},
+	});
 }

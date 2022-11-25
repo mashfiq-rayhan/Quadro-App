@@ -1,34 +1,40 @@
-import {
-	AppointmentInput,
-	AppointmentDto,
-	AppointmentOutput,
-	AppointmentDocument,
-	CheckoutInfo,
-} from "./appointment.interfaces";
-import { ServiceOutput } from "../serviceInformation/service.interface";
+import { ServiceInput } from "@src/common/types/serviceInformation.types";
+import { AppointmentInput, AppointmentDto, AppointmentOutput, AppointmentDocument } from "./appointment.interfaces";
 
 export function toAppointmentInput(payload: AppointmentDto): AppointmentInput {
-	const checkoutInfo: CheckoutInfo = {
-		type: payload.paymentAcceptType,
-		deposit: payload.depositAmount ? payload.depositAmount : 0,
+	const serviceInformation: ServiceInput = {
+		name: payload.name,
+		description: payload.description,
+		location: payload.location,
+		price: payload.price,
 	};
-	return {
-		serviceId: payload.serviceId,
+
+	console.log("In Mapper : return object =>", {
 		duration: payload.duration,
-		checkoutInfo: checkoutInfo,
+		paymentAcceptType: payload.paymentAcceptType,
+		depositAmount: payload.depositAmount,
 		published: payload.published ? payload.published : false,
+		service: serviceInformation,
+	});
+
+	return {
+		duration: payload.duration,
+		paymentAcceptType: payload.paymentAcceptType,
+		depositAmount: payload.depositAmount,
+		published: payload.published ? payload.published : false,
+		service: serviceInformation,
 	};
 }
 
-export function toAppointmentOutput(appointment: AppointmentDocument, service: ServiceOutput): AppointmentOutput {
+export function toAppointmentOutput(appointment: AppointmentDocument): AppointmentOutput {
 	return {
-		_id: appointment._id,
-		name: service.name,
-		description: service.description ? service.description : "",
-		location: service.location,
-		paymentAcceptType: appointment.checkoutInfo.type,
-		depositAmount: appointment.checkoutInfo.deposit ? appointment.checkoutInfo.deposit : 0,
-		price: service.price,
+		id: appointment.id,
+		name: appointment.service.name,
+		description: appointment.service.description ? appointment.service.description : "",
+		location: appointment.service.location,
+		paymentAcceptType: appointment.paymentAcceptType,
+		depositAmount: appointment.depositAmount,
+		price: appointment.service.price,
 		duration: appointment.duration,
 		published: appointment.published,
 		updatedAt: appointment.updatedAt,

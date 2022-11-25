@@ -1,0 +1,5 @@
+-- AlterTable
+ALTER TABLE `classes` MODIFY `duration` INTEGER NULL,
+    MODIFY `published` BOOLEAN NULL DEFAULT false,
+    MODIFY `createdAt` DATETIME(3) NULL DEFAULT CURRENT_TIMESTAMP(3),
+    MODIFY `updatedAt` DATETIME(3) NULL;

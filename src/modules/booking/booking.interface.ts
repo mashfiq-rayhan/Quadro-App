@@ -1,18 +1,17 @@
-import { Types } from "mongoose";
+import { Booking, BookingType, Service } from "@prisma/client";
+import { CreateBookingDto } from "./booking.schema";
 
-export interface BookingInput {
-	userId: Types.ObjectId;
-	bookingType: "string";
-	bookingRef: Types.ObjectId;
-	bookingTime: Date;
-	orderId?: Types.ObjectId;
+export interface BookingInput extends Omit<Booking, "id"> {}
+
+export interface BookingDocument extends Booking {
+	service: Service;
+}
+
+export interface BookingOutput extends BookingDocument {
+	service: Service;
+}
+
+export interface BookingDto extends CreateBookingDto {
+	bookingTime?: Date;
 	note?: string;
 }
-
-export interface BookingDocument extends Required<BookingInput> {
-	_id: Types.ObjectId;
-	readonly createdAt: Date;
-	readonly updatedAt: Date;
-}
-
-export interface BookingOutput extends BookingDocument {}

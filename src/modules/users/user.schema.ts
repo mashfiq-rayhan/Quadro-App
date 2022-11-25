@@ -4,6 +4,22 @@ import { User } from "./user.model";
 
 export type UserDoc = DocumentType<User>;
 
+export interface IUser {
+	id?: number;
+	email: string;
+	name: string;
+	password?: string;
+	verificationCode?: string;
+	passwordResetCode?: string;
+	verified?: boolean;
+	method?: string;
+	googleId?: string;
+	profilePicture?: string;
+	createdAt?: string;
+	updatedAt?: string;
+	session?: string;
+}
+
 export const createUserSchema = object({
 	body: object({
 		email: string({ required_error: "Email is required." }).email("Email is not valid."),

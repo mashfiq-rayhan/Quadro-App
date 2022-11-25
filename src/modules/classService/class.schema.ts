@@ -1,15 +1,5 @@
 import { object, TypeOf, number, string } from "zod";
-import { Types } from "mongoose";
-import { createServiceSchema } from "../serviceInformation/service.schema";
-import { ErrorCodes } from "../../errors/ErrorCodes";
-
-function isValidObjectId(id: string): boolean {
-	if (Types.ObjectId.isValid(id)) {
-		if (String(new Types.ObjectId(id)) === id) return true;
-		return false;
-	}
-	return false;
-}
+import { createServiceSchema } from "@src/common/schema/service.schema";
 
 const classSchema = object({
 	maxNumberOfParticipants: number({
@@ -28,9 +18,6 @@ export const classParamsSchema = object({
 			required_error: "No Id Provided", // Arbitrary
 			invalid_type_error: "Id must be of Type String",
 		}),
-	}).refine((data) => isValidObjectId(data.id), {
-		message: ErrorCodes.InvalidID,
-		path: ["Id"],
 	}),
 });
 
