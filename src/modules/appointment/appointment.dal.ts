@@ -4,6 +4,7 @@ import prisma from "@providers/prisma.provider";
 import { Prisma } from "@prisma/client";
 
 export async function create(payload: AppointmentInput): Promise<AppointmentDocument> {
+	console.log("payload ::", payload);
 	const newAppointment = await prisma.appointment.create({
 		data: {
 			duration: payload.duration,
@@ -17,9 +18,11 @@ export async function create(payload: AppointmentInput): Promise<AppointmentDocu
 					price: payload.service.price,
 				},
 			},
+			business: { connect: { id: payload.businessId } },
 		},
 		include: { service: true },
 	});
+
 	return newAppointment;
 }
 
@@ -68,6 +71,11 @@ export async function getAll(): Promise<Array<AppointmentDocument>> {
 	return appointmentsList;
 }
 
+export async function getAllbyFilter(filter: Prisma.AppointmentFindManyArgs): Promise<Array<AppointmentDocument>> {
+	const appointmentsList = await prisma.appointment.findMany({ ...filter, include: { service: true } });
+	return appointmentsList;
+}
+
 export async function deleteById(id: string): Promise<void> {
 	const targetAppointment = await getById(id);
 	if (!targetAppointment) throw Error(ErrorCodes.NotFound);
@@ -84,10 +92,8 @@ export async function deleteById(id: string): Promise<void> {
 	});
 }
 
-export async function getAppointment(
-	filter: Prisma.AppointmentFindFirstArgs,
-): Promise<Array<AppointmentDocument> | AppointmentDocument | any> {
-	const targetAppointment = await prisma.appointment.findFirst(filter);
+export async function getAppointment(filter: Prisma.AppointmentFindFirstArgs): Promise<AppointmentDocument | boolean> {
+	const targetAppointment = await prisma.appointment.findFirst({ ...filter, include: { service: true } });
 	if (!targetAppointment) return false;
 	return targetAppointment;
 }

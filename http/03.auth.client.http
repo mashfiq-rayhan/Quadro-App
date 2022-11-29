@@ -12,8 +12,13 @@ Content-Type: application/json
 	"password": "10091986"
 }
 
+### Google Login
+# @name google_login
+GET {{host}}/api/v1/auth/google
+Content-Type: application/json
+
 ###
-@token = {{login.response.body.token}}
+@token = {{login.response.body.accessToken}}
 GET {{host}}/api/v1/auth/protected
 Content-Type: application/json
 Authorization: Bearer {{token}}

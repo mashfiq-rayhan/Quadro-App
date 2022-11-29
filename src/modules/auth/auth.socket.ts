@@ -1,8 +1,10 @@
 import { Socket } from "socket.io";
 import { ISocket } from "@common/types/socket.types";
 import log from "@providers/logger.provider";
-import authMongoService from "@modules/auth/auth.services.mongo";
-import { IJwtPayload } from "@common/types/jwt.types";
+import authService from "@modules/auth/auth.services";
+import { CustomError } from "@src/errors/CustomError";
+import { ErrorCodes } from "@src/errors/ErrorCodes";
+import { StatusCodes } from "http-status-codes";
 
 export class AuthSocket implements ISocket {
 	public handleConnection = (socket: Socket): void => {
@@ -17,24 +19,51 @@ export class AuthSocket implements ISocket {
 		});
 	};
 
-	public middlewareImplementation = (socket: Socket, next: (e?: Error) => void): void => {
+	public middlewareImplementation = async (socket: Socket, next: (e?: Error) => void): Promise<void> => {
 		// Implement middleware for auth here
 		const auth_header = socket.handshake.headers.authorization;
 
 		if (auth_header) {
-			const payload: IJwtPayload | undefined = authMongoService.verifyToken(auth_header);
-
-			if (payload) {
-				next();
-			} else {
+			const payload = authService.verifyToken<{ session: number; iat: number }>(
+				auth_header,
+				"access_token_public_key",
+			);
+			if (!payload) {
 				log.error("[socket] Not authorized");
-				next(new Error("Not authorized"));
 				socket.disconnect();
+				return next(
+					new CustomError({
+						code: ErrorCodes.Unauthorized,
+						status: StatusCodes.UNAUTHORIZED,
+						description: "Not authorized.",
+					}),
+				);
 			}
+
+			const session = await authService.findSessionById(payload?.session!);
+			if (!session || !session.valid) {
+				log.error("[socket] Invalid session");
+				socket.disconnect();
+				return next(
+					new CustomError({
+						code: ErrorCodes.JwtError,
+						status: StatusCodes.UNAUTHORIZED,
+						description: "Invalid session.",
+					}),
+				);
+			}
+
+			return next();
 		} else {
 			log.error("[socket] Authorization header not found");
-			next(new Error("Authorization header not found"));
 			socket.disconnect();
+			return next(
+				new CustomError({
+					code: ErrorCodes.AuthError,
+					status: StatusCodes.BAD_REQUEST,
+					description: "Authorization header not found.",
+				}),
+			);
 		}
 	};
 }

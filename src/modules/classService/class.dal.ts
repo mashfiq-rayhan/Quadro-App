@@ -1,6 +1,7 @@
 import { ClassInput, ClassDocument } from "./class.interfaces";
 import { ErrorCodes } from "../../errors/ErrorCodes";
 import prisma from "@providers/prisma.provider";
+import { Prisma } from "@prisma/client";
 
 export async function create(payload: ClassInput): Promise<ClassDocument> {
 	// const newClass = await ClassModel.create(payload);
@@ -23,6 +24,7 @@ export async function create(payload: ClassInput): Promise<ClassDocument> {
 			repeat: {
 				create: payload.repeat,
 			},
+			business: { connect: { id: payload.businessId } },
 		},
 		include: { service: true, repeat: true },
 	});
@@ -68,6 +70,11 @@ export async function update(id: string, payload: ClassInput): Promise<ClassDocu
 
 export async function getAll(): Promise<Array<ClassDocument>> {
 	const classList = await prisma.class.findMany({ include: { service: true, repeat: true } });
+	return classList;
+}
+
+export async function getAllbyFilter(filter: Prisma.ClassFindManyArgs): Promise<Array<ClassDocument>> {
+	const classList = await prisma.class.findMany({ ...filter, include: { service: true, repeat: true } });
 	return classList;
 }
 

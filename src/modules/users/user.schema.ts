@@ -1,8 +1,4 @@
 import { object, string, TypeOf } from "zod";
-import { DocumentType } from "@typegoose/typegoose";
-import { User } from "./user.model";
-
-export type UserDoc = DocumentType<User>;
 
 export interface IUser {
 	id?: number;

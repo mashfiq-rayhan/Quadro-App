@@ -30,13 +30,50 @@ export async function getAppointmentById(id: string): Promise<AppointmentOutput>
 
 export async function getAllAppointments(): Promise<Array<AppointmentOutput>> {
 	const appointmentsList: Array<AppointmentDocument> = await appointmentDal.getAll();
+	return mapList(appointmentsList);
+}
+
+export async function getAllAppointmentsByUser(userId: number, businessId: number): Promise<Array<AppointmentOutput>> {
+	const appointmentsList: Array<AppointmentDocument> = await appointmentDal.getAllbyFilter({
+		where: {
+			business: {
+				AND: [
+					{
+						user: {
+							id: userId,
+						},
+					},
+					{
+						user: {
+							BusinessInfoSetting: {
+								id: businessId,
+							},
+						},
+					},
+				],
+			},
+		},
+	});
+	return mapList(appointmentsList);
+}
+
+export async function getAllAppointmentsByBusiness(businessId: number): Promise<Array<AppointmentOutput>> {
+	const appointmentsList: Array<AppointmentDocument> = await appointmentDal.getAllbyFilter({
+		where: {
+			businessId: businessId,
+		},
+	});
+	return mapList(appointmentsList);
+}
+
+export async function deleteAppointment(id: string): Promise<void> {
+	await appointmentDal.deleteById(id);
+}
+
+function mapList(appointmentsList: Array<AppointmentDocument>): Array<AppointmentOutput> {
 	const mappedAppointmentsList: Array<AppointmentOutput> = [];
 	for (const iterator of appointmentsList) {
 		mappedAppointmentsList.push(appointmentMapper.toAppointmentOutput(iterator));
 	}
 	return mappedAppointmentsList;
-}
-
-export async function deleteAppointment(id: string): Promise<void> {
-	await appointmentDal.deleteById(id);
 }

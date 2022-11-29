@@ -1,6 +1,4 @@
 import { object, string, TypeOf } from "zod";
-import { Session } from "./session.models";
-import { DocumentType } from "@typegoose/typegoose";
 
 export const loginSchema = object({
 	body: object({
@@ -10,5 +8,3 @@ export const loginSchema = object({
 });
 
 export type LoginDto = TypeOf<typeof loginSchema>["body"];
-
-export type SessionDoc = DocumentType<Session>;

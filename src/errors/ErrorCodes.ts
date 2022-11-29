@@ -13,4 +13,5 @@ export class ErrorCodes {
 	public static readonly AsyncError = "AsyncError";
 	public static readonly UnknownError = "UnknownError";
 	public static readonly InvalidID = "InvalidID";
+	public static readonly CrudError = "CrudError";
 }

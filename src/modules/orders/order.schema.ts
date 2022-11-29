@@ -1,38 +1,28 @@
-import { object, TypeOf, string, ZodIssueCode } from "zod";
-import { Types } from "mongoose";
-import { ErrorCodes } from "../../errors/ErrorCodes";
+import { object, TypeOf, string } from "zod";
+import { bookingSchema } from "../booking/booking.schema";
 
-function isValidObjectId(id: string): boolean {
-	if (Types.ObjectId.isValid(id)) {
-		if (String(new Types.ObjectId(id)) === id) return true;
-		return false;
-	}
-	return false;
-}
-
-const bookingSchema = object({
-	body: object({
-		userId: string({
-			required_error: "userId is required.",
-			invalid_type_error: "userId must be a String",
-		}),
-		bookingType: string({
-			required_error: "bookingType is required.",
-			invalid_type_error: "bookingType must be a String",
-		}),
-		bookingRef: string({
-			required_error: "bookingRef is required.",
-			invalid_type_error: "bookingRef must be a String",
-		}),
-	}).superRefine((data, ctx) => {
-		if (isValidObjectId(data.userId)) {
-			ctx.addIssue({
-				code: ZodIssueCode.custom,
-				message: ErrorCodes.InvalidID,
-			});
-		}
+const orderSchema = object({
+	clientId: string({
+		required_error: "userId is required.",
+		invalid_type_error: "userId must be a String",
+	}),
+	businessId: string({
+		required_error: "bookingType is required.",
+		invalid_type_error: "bookingType must be a String",
 	}),
 });
 
-// export type AppointmentParamsDto = TypeOf<typeof appointmentParamsSchema>["params"];
-export type CreateBookingDto = TypeOf<typeof bookingSchema>["body"];
+export const createOrderSchema = object({
+	body: orderSchema.extend(bookingSchema.shape),
+});
+
+export const orderParamsSchema = object({
+	params: object({
+		id: string({
+			required_error: "No Id Provided", // Arbitrary
+		}),
+	}),
+});
+
+export type OrderParamsDto = TypeOf<typeof orderParamsSchema>["params"];
+export type CreateOrderDto = TypeOf<typeof orderSchema>;

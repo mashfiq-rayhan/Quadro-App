@@ -39,6 +39,44 @@ export async function getAllClasss(): Promise<Array<ClassOutput>> {
 	return populatedClasssList;
 }
 
+export async function getAllClasssByUser(userId: number, businessId: number): Promise<Array<ClassOutput>> {
+	const classsList: Array<ClassDocument> = await classDal.getAllbyFilter({
+		where: {
+			business: {
+				AND: [
+					{
+						user: {
+							id: userId,
+						},
+					},
+					{
+						id: businessId,
+					},
+				],
+			},
+		},
+	});
+
+	return mapList(classsList);
+}
+
+export async function getAllClasssByBusiness(businessId: number): Promise<Array<ClassOutput>> {
+	const classsList: Array<ClassDocument> = await classDal.getAllbyFilter({
+		where: {
+			businessId: businessId,
+		},
+	});
+	return mapList(classsList);
+}
+
 export async function deleteClass(id: string): Promise<void> {
 	await classDal.deleteById(id);
+}
+
+function mapList(classsList: Array<ClassDocument>): Array<ClassOutput> {
+	const mappedClasssList: Array<ClassOutput> = [];
+	for (const iterator of classsList) {
+		mappedClasssList.push(classMapper.toClassOutput(iterator));
+	}
+	return mappedClasssList;
 }

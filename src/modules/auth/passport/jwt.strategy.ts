@@ -5,7 +5,10 @@ import usersService from "@modules/users/user.services";
 import { IJwtPayload } from "@common/types/jwt.types";
 
 const options: StrategyOptions = {
-	jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+	jwtFromRequest:
+		ExtractJwt.fromAuthHeaderAsBearerToken() ||
+		ExtractJwt.fromBodyField("token") ||
+		ExtractJwt.fromUrlQueryParameter("token"),
 	secretOrKey: Buffer.from(config.get<string>("access_token_public_key"), "base64").toString("ascii"),
 	algorithms: ["RS256"],
 };

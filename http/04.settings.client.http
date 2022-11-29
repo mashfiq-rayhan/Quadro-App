@@ -1,0 +1,304 @@
+@hostname = {{$dotenv HOSTNAME}}
+@port = {{$dotenv PORT}}
+@host = {{hostname}}:{{port}}
+
+### Login
+# @name login
+POST {{host}}/api/v1/auth/login
+Content-Type: application/json
+
+{
+	"email": "php.chandan@gmail.com",
+	"password": "10091986"
+}
+
+###
+# @name upsert bank account
+@token = {{login.response.body.accessToken}}
+POST {{host}}/api/v1/settings/bank-account/upsert
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"beneficiary_name": "Hasib",
+	"account_number": "5462184",
+	"bank_name": "Agrani Bank Ltd.",
+	"bank_code": "FR78WER",
+	"other": "Test 2"
+}
+
+###
+# @name get logged in user bank account
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/bank-account/my-bank-account
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get bank account by user id
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/bank-account/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete logged in user bank account
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/bank-account/my-bank-account
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete bank account by user id
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/bank-account/4
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name upsert business info
+@token = {{login.response.body.accessToken}}
+POST {{host}}/api/v1/settings/business-info/upsert
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"name": "Grid Stacks",
+	"description": "Get your solution here",
+	"link": "https://google.com",
+	"address": "Dhaka, Bangladesh",
+	"interval": "10 to 15 minutes",
+	"availability": "Up tp 90 days in the future",
+	"advanceNotice": "15 minutes",
+	"openHours": {
+		"Monday": {
+			"active": false,
+			"start": "3.00",
+			"end": "6.00"
+		},
+		"Tuesday": {
+			"active": true,
+			"start": "5.00",
+			"end": "10.00"
+		}
+	}
+}
+
+###
+# @name get logged in user business info
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/business-info/my-business
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get business info by user id
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/business-info/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete logged in user business info
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/business-info/my-business
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete business info by user id
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/business-info/4
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name upsert protection setting
+@token = {{login.response.body.accessToken}}
+POST {{host}}/api/v1/settings/protection-setting/upsert
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"activatePolicy": true,
+	"time": "2 hours",
+	"toleranceDelay": "5 minutes"
+}
+
+###
+# @name get logged in user protection setting
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/protection-setting/my-protection
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get protection setting by user id
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/protection-setting/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete logged in user protection setting
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/protection-setting/my-protection
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete protection setting by user id
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/protection-setting/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name upsert automatic charges
+@token = {{login.response.body.accessToken}}
+POST {{host}}/api/v1/settings/automatic-charges/upsert
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"eachAppointment": false,
+	"eachPlan": false,
+	"frequency": "weekly (every monday)"
+}
+
+###
+# @name get logged in user automatic charges
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/automatic-charges/my-charges
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get automatic charges by user id
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/automatic-charges/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete logged in user automatic charges
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/automatic-charges/my-charges
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete automatic charges by user id
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/automatic-charges/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name create subscription plan
+@token = {{login.response.body.accessToken}}
+POST {{host}}/api/v1/settings/subscription-plan
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"name": "Basic",
+	"tagLine": "To dizitize yout business",
+	"amount": 0,
+	"discountedAmount": 0,
+	"subscriptionType": "FOREVER",
+	"iconColor": "#ccc",
+	"isRecommended": false
+}
+
+###
+# @name create subscription plan
+@token = {{login.response.body.accessToken}}
+PUT {{host}}/api/v1/settings/subscription-plan/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"name": "Basic",
+	"tagLine": "To dizitize yout business",
+	"amount": 0,
+	"discountedAmount": 0,
+	"subscriptionType": "FOREVER",
+	"iconColor": "#ccc",
+	"isRecommended": false,
+	"features": [
+		"Option 1",
+		"Option 2"
+	]
+}
+
+###
+# @name get all subscription plans
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/subscription-plan
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get subscription plan by user id
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/subscription-plan/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete subscription plan by user id
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/subscription-plan/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name create subscription
+@token = {{login.response.body.accessToken}}
+POST {{host}}/api/v1/settings/subscription
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+	"billingDetails": "4565-8754-8246-1254",
+	"billingAddress": "Dhaka, Bangladesh",
+	"billingEmail": "user@gmail.com",
+	"isSubscribed": true,
+	"planId": 2
+}
+
+###
+# @name get logged in user subscription
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/subscription/my-subscription?hasPlan=true
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get subscription by user id
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/subscription/3?hasUser=true
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get all subscriptions
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/subscription?take=1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name get subscription by user id
+@token = {{login.response.body.accessToken}}
+GET {{host}}/api/v1/settings/subscription/my-subscription
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+###
+# @name delete subscription by id
+@token = {{login.response.body.accessToken}}
+DELETE  {{host}}/api/v1/settings/subscription/1
+Content-Type: application/json
+Authorization: Bearer {{token}}

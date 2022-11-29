@@ -1,5 +1,5 @@
 import { CreateClassDto } from "./class.schema";
-import { Class, Service, ClassRepeat } from "@prisma/client";
+import { Class, Service, ClassRepeat, BusinessInfoSetting } from "@prisma/client";
 import { ServiceInput } from "@src/common/types/serviceInformation.types";
 
 // TODO change basic info to serviceId
@@ -44,10 +44,11 @@ export interface ClassDto extends CreateClassDto {
 	duration: number;
 	description?: string;
 	published?: boolean;
+	businessId: BusinessInfoSetting["id"];
 }
 
 export interface ClassOutput
-	extends Omit<ClassDocument, "service" | "repeat" | "serviceId" | "repeatId">,
+	extends Omit<ClassDocument, "service" | "repeat" | "serviceId" | "repeatId" | "business" | "businessId">,
 		Omit<Service, "id"> {
 	repeat: ClassRepeatDto;
 }

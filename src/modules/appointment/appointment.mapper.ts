@@ -9,20 +9,13 @@ export function toAppointmentInput(payload: AppointmentDto): AppointmentInput {
 		price: payload.price,
 	};
 
-	console.log("In Mapper : return object =>", {
-		duration: payload.duration,
-		paymentAcceptType: payload.paymentAcceptType,
-		depositAmount: payload.depositAmount,
-		published: payload.published ? payload.published : false,
-		service: serviceInformation,
-	});
-
 	return {
 		duration: payload.duration,
 		paymentAcceptType: payload.paymentAcceptType,
 		depositAmount: payload.depositAmount,
 		published: payload.published ? payload.published : false,
 		service: serviceInformation,
+		businessId: payload.businessId,
 	};
 }
 

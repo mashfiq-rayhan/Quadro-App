@@ -42,7 +42,6 @@ export class AuthServices {
 	};
 
 	public signRefreshToken = async (user): Promise<string | undefined> => {
-		console.log("varifing password... ::", user);
 		const session = await this.createSession(user.id);
 
 		return this.getToken(
@@ -52,7 +51,7 @@ export class AuthServices {
 	};
 
 	public createSession = async (userId: number) => {
-		return await prisma.session.create({ data: { userId } });
+		return await prisma.session.upsert({ create: { userId }, update: { userId }, where: { userId } });
 	};
 
 	public notifyLogin = (email: string): void => {

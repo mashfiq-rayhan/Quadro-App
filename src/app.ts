@@ -11,7 +11,6 @@ import config from "config";
 import passport from "passport";
 import { StatusCodes } from "http-status-codes";
 import log from "@providers/logger.provider";
-import connectMongo from "@src/providers/mongo.provider";
 import router from "./routes";
 import { errorHandler } from "@middlewares/.";
 import passportAuth from "@modules/auth/passport/auth.config";
@@ -22,6 +21,7 @@ import { SOCKET_PATHS } from "@common/const/socket.const";
 import { IJwtPayload } from "@common/types/jwt.types";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
+
 import { ErrorArgs } from "@src/errors/ErrorArgs";
 
 import tokenHandler from "@middlewares/tokenHandler";
@@ -38,7 +38,6 @@ class App {
 		this.io = Websocket.getInstance(this.server);
 		this.port = config.get<number>("port");
 
-		this.initializeDatabaseConnections().catch(console.error);
 		this.initializeMiddlewares();
 		this.initializeRoutes();
 		this.initializeHelmet();
@@ -55,9 +54,7 @@ class App {
 		});
 	};
 
-	private initializeDatabaseConnections = async (): Promise<void> => {
-		// await connectMongo();
-	};
+	private initializeDatabaseConnections = async (): Promise<void> => {};
 
 	private initializeMiddlewares = (): void => {
 		this.app.use(express.json());

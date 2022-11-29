@@ -1,7 +1,3 @@
-import { BookingDto, BookingOutput } from "./booking.interface";
+import { BookingDto, BookingOutput, BookingInput } from "./booking.interface";
 
-// export async function createBooking(payload: BookingDto):Promise<BookingOutput> {
-
-// const mappedBooking = await
-
-// }
+export async function createBooking(payload: BookingDto) {}

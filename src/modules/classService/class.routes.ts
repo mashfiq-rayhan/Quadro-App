@@ -2,6 +2,7 @@ import { Router } from "express";
 import { createClassSchema, classParamsSchema, updateClassSchema } from "./class.schema";
 import { validateResource } from "@src/middlewares";
 import * as classController from "./class.controllers";
+import requireUserHandler from "@src/middlewares/requireUserHandler";
 
 const classRouter: Router = Router();
 
@@ -34,12 +35,16 @@ classRouter.get("/info", (_, res) =>
 
 classRouter.get("/", classController.handelGetAll);
 
+classRouter.get("/all-my-classes", [requireUserHandler], classController.handelGetAllByUser);
+
+classRouter.get("/business/:id", classController.handelGetAllByBusiness);
+
 classRouter.get("/:id", [validateResource(classParamsSchema)], classController.handelGet);
 
-classRouter.post("/", [validateResource(createClassSchema)], classController.handelCreate);
+classRouter.post("/", [requireUserHandler, validateResource(createClassSchema)], classController.handelCreate);
 
-classRouter.put("/:id", [validateResource(updateClassSchema)], classController.handelUpdate);
+classRouter.put("/:id", [requireUserHandler, validateResource(updateClassSchema)], classController.handelUpdate);
 
-classRouter.delete("/:id", [validateResource(classParamsSchema)], classController.handleDelete);
+classRouter.delete("/:id", [requireUserHandler, validateResource(classParamsSchema)], classController.handleDelete);
 
 export default classRouter;

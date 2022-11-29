@@ -7,11 +7,20 @@ import { ClassDto, ClassOutput } from "./class.interfaces";
 import { ClassParamsDto } from "./class.schema";
 import * as classService from "./class.services";
 import { ErrorCodes } from "../../errors/ErrorCodes";
+import settingsServices from "../settings/settings.services";
 
 export async function handelCreate(request: Request<{}, {}, ClassDto>, response: Response): Promise<Response> {
 	try {
-		const newAppointment = await classService.createClass(request.body);
-		return response.status(StatusCodes.CREATED).json(responseObject(newAppointment));
+		const { userId } = request;
+		const businessInfo = await settingsServices.findBusinessInfo({ where: { userId } });
+
+		if (!businessInfo)
+			return response
+				.status(StatusCodes.UNAUTHORIZED)
+				.json(responseObject("Please Complete you Onboarding", true));
+
+		const newClass = await classService.createClass({ ...request.body, businessId: businessInfo.id });
+		return response.status(StatusCodes.CREATED).json(responseObject(newClass));
 	} catch (error) {
 		log.error(error);
 		return response.status(StatusCodes.INTERNAL_SERVER_ERROR).json(responseObject(error, true));
@@ -24,8 +33,8 @@ export async function handelUpdate(
 ): Promise<Response> {
 	try {
 		const id = request.params.id;
-		const updatedAppointment = await classService.updateClass(id, request.body);
-		return response.status(StatusCodes.OK).json(responseObject(updatedAppointment));
+		const updatedClass = await classService.updateClass(id, request.body);
+		return response.status(StatusCodes.OK).json(responseObject(updatedClass));
 	} catch (error: any) {
 		return handelError(response, error);
 	}
@@ -34,6 +43,7 @@ export async function handelUpdate(
 export async function handelGet(request: Request<ClassParamsDto, {}, {}>, response: Response): Promise<Response> {
 	try {
 		const id = request.params.id;
+		console.log("ID :", id);
 		const newService = await classService.getClassById(id);
 		return response.status(StatusCodes.OK).json({
 			success: true,
@@ -48,8 +58,38 @@ export async function handelGet(request: Request<ClassParamsDto, {}, {}>, respon
 
 export async function handelGetAll(_: Request, response: Response): Promise<Response> {
 	try {
-		const appointmentsList: Array<ClassOutput> = await classService.getAllClasss();
-		return response.status(StatusCodes.OK).json(responseObject(appointmentsList));
+		const classList: Array<ClassOutput> = await classService.getAllClasss();
+		return response.status(StatusCodes.OK).json(responseObject(classList));
+	} catch (error) {
+		return handelError(response, error);
+	}
+}
+export async function handelGetAllByUser(request: Request, response: Response): Promise<Response> {
+	try {
+		const { userId } = request;
+		console.log(userId);
+		const businessInfo = await settingsServices.findBusinessInfo({ where: { userId } });
+
+		if (!businessInfo) return response.status(StatusCodes.UNAUTHORIZED).json(responseObject("UNAUTHORIZED", true));
+
+		const classList: Array<ClassOutput> = await classService.getAllClasssByUser(Number(userId), businessInfo.id);
+		return response.status(StatusCodes.OK).json(responseObject(classList));
+	} catch (error) {
+		return handelError(response, error);
+	}
+}
+
+export async function handelGetAllByBusiness(request: Request, response: Response): Promise<Response> {
+	try {
+		const businessId = Number(request.params.id);
+		if (!businessId) return response.status(StatusCodes.BAD_REQUEST).json(responseObject("Invalid Id", true));
+
+		const businessInfo = await settingsServices.findBusinessInfo({ where: { id: businessId } });
+		if (!businessInfo) return response.status(StatusCodes.UNAUTHORIZED).json(responseObject("UNAUTHORIZED", true));
+
+		const classList: Array<ClassOutput> = await classService.getAllClasssByBusiness(businessInfo.id);
+
+		return response.status(StatusCodes.OK).json(responseObject(classList));
 	} catch (error) {
 		return handelError(response, error);
 	}

@@ -3,7 +3,7 @@ import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
 import log from "@providers/logger.provider";
 import { LoginDto } from "./auth.schema";
-import { IUser, UserDoc } from "@modules/users/user.schema";
+import { IUser } from "@modules/users/user.schema";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
 import userServices, { UserServices } from "@modules/users/user.services";
@@ -25,6 +25,7 @@ export class AuthController {
 		log.info("[controller] authenticateUser");
 
 		const body = req.body;
+
 		// Find user by email
 		const user = await this.userServices.findUserByEmail(body.email);
 
@@ -51,7 +52,7 @@ export class AuthController {
 		}
 
 		// Verify password
-		const isValid = await this.userServices.verifyUserPassword(user.password, body.password);
+		const isValid = await this.userServices.verifyUserPassword(user.password!, body.password);
 
 		if (!isValid) {
 			log.error("[error] Invalid credentials");
@@ -64,7 +65,7 @@ export class AuthController {
 			);
 		}
 
-		const minutes = 20;
+		const minutes = 60 * 24 * 30 * 12;
 		const accessToken = this.authService.signAccessToken(user, minutes);
 		const refreshToken = await this.authService.signRefreshToken(user);
 
@@ -110,7 +111,7 @@ export class AuthController {
 			);
 		}
 
-		const minutes = 20;
+		const minutes = 60 * 24 * 30 * 12;
 		const accessToken = this.authService.signAccessToken(user, minutes);
 		const refreshToken = await this.authService.signRefreshToken(user);
 
@@ -219,7 +220,7 @@ export class AuthController {
 				}),
 			);
 
-		const minutes = 20;
+		const minutes = 60 * 24 * 30 * 12;
 		const accessToken = this.authService.signAccessToken(user, minutes);
 
 		log.info("[success] Access token generated");

@@ -1,14 +1,12 @@
 import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { CreateUserDto } from "./user.schema";
-import usersMongoService, { UsersMongoService } from "./user.services.mongo";
 import log from "@providers/logger.provider";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
 import userServices, { UserServices } from "@modules/users/user.services";
 
 export class UsersController {
-	private usersMongoService: UsersMongoService = usersMongoService;
 	private userServices: UserServices = userServices;
 
 	public createNewUser = async (
@@ -18,6 +16,7 @@ export class UsersController {
 	): Promise<Response | void> => {
 		log.info("[controller] createNewUser");
 		const body = req.body;
+
 		const existingUser = await this.userServices.findUserByEmail(body.email);
 		console.log("existing users", existingUser);
 		if (existingUser) {

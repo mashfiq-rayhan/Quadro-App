@@ -12,7 +12,7 @@ export class UserServices {
 		const { passwordConfirmation, ...userInput } = data;
 		userInput.password = await argon2.hash(userInput.password);
 
-		return await prisma.user.create({ data: { ...userInput, verificationCode: uuid() } });
+		return await prisma.user.create({ data: { ...userInput, verified: true, verificationCode: uuid() } });
 	};
 
 	public createUserGoogle = async (data: Prisma.UserCreateInput) => {

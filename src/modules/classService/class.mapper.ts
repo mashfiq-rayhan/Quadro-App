@@ -23,6 +23,7 @@ export function toClassInput(payload: ClassDto): ClassInput {
 		maxNumberOfParticipants: payload.maxNumberOfParticipants,
 		startDateAndTime: payload.startDateAndTime,
 		endDate: payload.endDate,
+		businessId: payload.businessId,
 	};
 }
 
