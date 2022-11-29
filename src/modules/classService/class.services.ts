@@ -63,7 +63,7 @@ export async function getAllClasssByUser(userId: number, businessId: number): Pr
 export async function getAllClasssByBusiness(businessId: number): Promise<Array<ClassOutput>> {
 	const classsList: Array<ClassDocument> = await classDal.getAllbyFilter({
 		where: {
-			businessId: businessId,
+			AND: [{ businessId: businessId }, { published: true }],
 		},
 	});
 	return mapList(classsList);

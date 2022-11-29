@@ -60,7 +60,7 @@ export async function getAllAppointmentsByUser(userId: number, businessId: numbe
 export async function getAllAppointmentsByBusiness(businessId: number): Promise<Array<AppointmentOutput>> {
 	const appointmentsList: Array<AppointmentDocument> = await appointmentDal.getAllbyFilter({
 		where: {
-			businessId: businessId,
+			AND: [{ businessId: businessId }, { published: true }],
 		},
 	});
 	return mapList(appointmentsList);
