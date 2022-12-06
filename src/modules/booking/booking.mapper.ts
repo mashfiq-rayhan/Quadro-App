@@ -1,13 +1,24 @@
-import { BookingDto, BookingInput } from "./booking.interface";
-import { BookingType } from "@prisma/client";
-import * as _ from "lodash";
+import { ServiceType } from "@prisma/client";
 
-export async function toBookingInput(payload: BookingDto): Promise<BookingInput> {
-	console.log(_.includes({ a: 1, b: 2 }, 1));
+import { BookingDocument, BookingDto, BookingInput, BookingOutput } from "./booking.interface";
+
+export function toBookingInput(payload: BookingDto): BookingInput {
 	return {
-		serviceId: payload.serviceId,
-		bookingType: "APPOINTMENT",
+		serviceId: payload.serviceId ? payload.serviceId : "",
+		bookingType: payload.bookingType ? ServiceType[payload.bookingType] : "",
+		bookingTime: payload.bookingTime ? new Date(payload.bookingTime) : null,
+		note: payload.note ? payload.note : "",
+	};
+}
+
+export function toBookingOutput(payload: BookingDocument): BookingOutput {
+	return {
+		service: {
+			...payload.service,
+		},
+		id: payload.id,
 		bookingTime: payload.bookingTime,
+		bookingType: payload.bookingType,
 		note: payload.note,
 	};
 }

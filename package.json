@@ -5,6 +5,8 @@
 	"license": "MIT",
 	"scripts": {
 		"dev": "ts-node-dev --respawn --transpile-only src/app.ts",
+		"build": "tsc",
+		"test-build": "npm run build & node build/src/app.js",
 		"lint": "next lint",
 		"prettier": "prettier --list-different .",
 		"prettier:check": "prettier --check .",
@@ -14,7 +16,9 @@
 		"cz:force": "commitizen init cz-conventional-changelog --yarn --dev --exact --force",
 		"lint-staged": "lint-staged",
 		"prepare": "husky install",
-		"token": "node -e \"console.log(crypto.randomBytes(32).toString('hex'))\""
+		"token": "node -e \"console.log(crypto.randomBytes(32).toString('hex'))\"",
+		"docker:build": "docker build . -t service-api:latest",
+		"docker:run": "docker run --env-file=.env -p=3050:3050 --name service-api -d -it service-api:latest"
 	},
 	"devDependencies": {
 		"@rushstack/eslint-config": "^3.1.1",

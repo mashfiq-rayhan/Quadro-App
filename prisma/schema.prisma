@@ -63,7 +63,6 @@ model Appointment {
   duration          Int
   published         Boolean  			@default(false)
   depositAmount     Float?     			@default(0)
-  paymentAcceptType String?
 
   createdAt         DateTime 			@default(now())
   updatedAt         DateTime 			@updatedAt
@@ -71,23 +70,36 @@ model Appointment {
   service           Service  			@relation(fields: [serviceId], references: [id])
   serviceId         String  			@unique
 
-  business			BusinessInfoSetting @relation(fields: [businessId],references: [id])
-  businessId		Int
-
   @@map("appointments")
 }
 
+enum ServiceType {
+	APPOINTMENT
+	CLASS
+}
+
+enum PaymentType {
+	IN_PERSON
+	ONLINE
+}
+
 model Service {
-  	id          String       @id @unique @default(uuid())
+  	id          String       		@id @unique @default(uuid())
 
   	name        String
   	description String?
-  	location    String?	   @default("To be determined")
+  	location    String?	   			@default("To be determined")
   	price       Float
+	paymentType PaymentType			@default(IN_PERSON)
+	serviceType ServiceType
+
+  	business	BusinessInfoSetting @relation(fields: [businessId],references: [id])
+  	businessId	Int
 
   	appointment Appointment?
   	class		Class?
-  	booking		Booking?
+
+  	booking		Booking[]
 
   	@@map("services")
 }
@@ -127,24 +139,19 @@ model Class {
   repeat           			ClassRepeat @relation(fields: [repeatId], references: [id])
   repeatId         			String  	@unique
 
-  business			BusinessInfoSetting 	 @relation(fields: [businessId],references: [id])
-  businessId		Int
-
   @@map("classes")
-}
-
-enum BookingType {
-	APPOINTMENT
-	CLASS
 }
 
 model Booking {
 	id                		String   	@id @unique @default(uuid())
 
 	bookingTime		        DateTime?
-	service           		Service 	@relation(fields: [serviceId], references: [id])
-  	serviceId         		String  	@unique
-	bookingType				BookingType
+
+	service           		Service	@relation(fields: [serviceId], references: [id])
+  	serviceId         		String
+
+	bookingType				ServiceType
+
 	note					String?		@default("")
 	active					Boolean		@default(true)
 
@@ -169,6 +176,7 @@ model Order {
 
 	booking	   	  Booking 				@relation(fields: [bookingId], references: [id])
   	bookingId     String  				@unique
+
 	paymentStatus PaymentStatus			@default(UNPAID)
 
 	createdAt	  DateTime? 			@default(now())
@@ -182,6 +190,9 @@ model Order {
 
   	@@map("orders")
 }
+
+
+
 
 model ProtectionSetting {
     id             Int      @id @default(autoincrement())
@@ -226,9 +237,8 @@ model BusinessInfoSetting {
     user          User     @relation(fields: [userId], references: [id])
     userId        Int      @unique
 
-	Appointment				Appointment[]
-	Class					Class[]
-	Order					Order[]
+	service		  Service[]
+	order		  Order[]
 
     @@map(name: "business_info_settings")
 }

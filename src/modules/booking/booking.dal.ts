@@ -1,8 +1,10 @@
-import { BookingInput, BookingDocument } from "./booking.interface";
-import { ErrorCodes } from "../../errors/ErrorCodes";
+import { Booking } from "@prisma/client";
 import prisma from "@providers/prisma.provider";
 
-export async function create(payload: BookingInput): Promise<BookingDocument> {
+import { ErrorCodes } from "../../errors/ErrorCodes";
+import { BookingDocument, BookingInput } from "./booking.interface";
+
+async function create(payload: BookingInput): Promise<BookingDocument> {
 	const newBooking = await prisma.booking.create({
 		data: {
 			bookingTime: payload.bookingTime,
@@ -17,7 +19,7 @@ export async function create(payload: BookingInput): Promise<BookingDocument> {
 	return newBooking;
 }
 
-export async function getById(id: string): Promise<BookingDocument> {
+async function getById(id: string): Promise<BookingDocument> {
 	const targetBooking = await prisma.booking.findUnique({
 		where: {
 			id: id,
@@ -29,7 +31,21 @@ export async function getById(id: string): Promise<BookingDocument> {
 	return targetBooking;
 }
 
-export async function update(id: string, payload: BookingInput): Promise<BookingDocument> {
+async function getByOrderId(id: string): Promise<BookingDocument> {
+	const targetBooking = await prisma.booking.findFirst({
+		where: {
+			order: {
+				id: id,
+			},
+		},
+		include: { service: true },
+	});
+
+	if (!targetBooking) throw Error(ErrorCodes.NotFound);
+	return targetBooking;
+}
+
+async function update(id: string, payload: BookingInput): Promise<BookingDocument> {
 	const targetBooking = await getById(id);
 
 	if (!targetBooking) throw Error(ErrorCodes.NotFound);
@@ -40,7 +56,6 @@ export async function update(id: string, payload: BookingInput): Promise<Booking
 		},
 		data: {
 			bookingTime: payload.bookingTime,
-			bookingType: payload.bookingType,
 			note: payload.note,
 		},
 		include: { service: true },
@@ -49,23 +64,68 @@ export async function update(id: string, payload: BookingInput): Promise<Booking
 	return updatedBooking;
 }
 
-export async function getAll(): Promise<Array<BookingDocument>> {
+async function chekcAuthorization(id: string, userId: number): Promise<boolean> {
+	const isAuthorized = await prisma.booking.findFirst({
+		where: {
+			OR: [
+				{ id },
+				{
+					order: {
+						AND: [{ id: id }, { OR: [{ clientId: userId }, { business: { user: { id: userId } } }] }],
+					},
+				},
+			],
+		},
+	});
+	if (!isAuthorized) return false;
+	return true;
+}
+
+async function cancelBooking(id: string): Promise<Booking> {
+	const cancledBooking = await prisma.booking.update({
+		where: {
+			id: id,
+		},
+		data: {
+			active: false,
+		},
+	});
+	return cancledBooking;
+}
+
+async function getAll(): Promise<Array<BookingDocument>> {
 	const BookingsList = await prisma.booking.findMany({ include: { service: true } });
 	return BookingsList;
 }
 
-export async function deleteById(id: string): Promise<void> {
-	const targetBooking = await getById(id);
-	if (!targetBooking) throw Error(ErrorCodes.NotFound);
-
+async function deleteById(id: string): Promise<void> {
 	await prisma.booking.delete({
 		where: {
 			id: id,
 		},
 	});
-	await prisma.service.delete({
+
+	await prisma.booking.update({
 		where: {
-			id: targetBooking.service.id,
+			id,
+		},
+		data: {
+			order: {
+				delete: true,
+			},
 		},
 	});
 }
+
+const bookingDal = {
+	create,
+	getById,
+	update,
+	getAll,
+	deleteById,
+	chekcAuthorization,
+	getByOrderId,
+	cancelBooking,
+};
+
+export default bookingDal;

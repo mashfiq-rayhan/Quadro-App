@@ -12,5 +12,5 @@ export default function (passport: PassportStatic): void {
 	passport.use("local", localStrategy);
 	passport.use("jwt", jwtStrategy);
 	passport.use("query", queryStrategy);
-	// passport.use("google", googleStrategy);
+	passport.use("google", googleStrategy);
 }

@@ -14,7 +14,7 @@ const localStrategy = new LocalStrategy.Strategy({ usernameField: "email" }, asy
 		}
 
 		// Verify password
-		const isValid = await usersService.verifyUserPassword(user.password, password);
+		const isValid = await usersService.verifyUserPassword(user.password!, password);
 
 		if (!isValid) {
 			return done(null, false, { message: "Invalid credentials." });

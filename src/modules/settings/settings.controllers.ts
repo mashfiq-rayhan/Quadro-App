@@ -184,7 +184,7 @@ export class SettingsController {
 		log.info("[controller] createBusinessInfo");
 		const body = req.body;
 		const { userId } = req;
-		console.log();
+
 		try {
 			const settings = await settingsServices.upsertBusinessInfo({
 				create: { ...body, user: { connect: { id: userId } } },

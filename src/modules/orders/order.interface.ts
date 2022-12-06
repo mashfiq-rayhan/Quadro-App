@@ -1,11 +1,25 @@
-import { Order, PaymentStatus } from "@prisma/client";
+import { Order, User } from "@prisma/client";
+
+import { BookingDto, BookingOutput } from "../booking/booking.interface";
 import { CreateOrderDto } from "./order.schema";
-import { CreateBookingDto } from "../booking/booking.schema";
 
-export interface OrderInput extends Omit<Order, "id" | "bookingId"> {}
+export interface OrderInput extends Omit<Order, "id" | "createdAt" | "updatedAt"> {}
 
-export interface OrderDocument extends Order {}
+export interface OrderDocument extends Order {
+	booking?: Omit<BookingOutput, "id">;
+}
 
-export interface OrderOutput extends OrderDocument {}
+export interface OrderOutput extends OrderDocument {
+	booking: BookingOutput;
+}
 
-export type OrderDto = CreateOrderDto & CreateBookingDto;
+export interface OrderDto extends CreateOrderDto, BookingDto {}
+
+export type OrderServiceDto = OrderDto & {
+	clientId: User["id"];
+};
+
+// serviceId: string;
+// bookingTime: string;
+// note?: string;
+// bookingType: string;
