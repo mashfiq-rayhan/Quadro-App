@@ -14,17 +14,17 @@ export async function createBooking(payload: BookingDto): Promise<BookingOutput>
 	return bookingMapper.toBookingOutput(newBooking);
 }
 
-async function getBookingbyId(id: string): Promise<BookingOutput> {
+async function getBookingbyId(id: number): Promise<BookingOutput> {
 	const booking = await bookingDal.getById(id);
 	return bookingMapper.toBookingOutput(booking);
 }
 
-async function updateBooking(id: string, payload: BookingDto): Promise<BookingOutput> {
+async function updateBooking(id: number, payload: BookingDto): Promise<BookingOutput> {
 	const updatedBooking = await bookingDal.update(id, bookingMapper.toBookingInput(payload));
 	return bookingMapper.toBookingOutput(updatedBooking);
 }
 
-async function cancleBooking(orderId: string, userId: number): Promise<Booking> {
+async function cancleBooking(orderId: number, userId: number): Promise<Booking> {
 	const isAuthorized = await bookingDal.chekcAuthorization(orderId, userId);
 	if (!isAuthorized) throw Error(ErrorCodes.Unauthorized + " Your Unauthorized for this action ");
 	const bookingDetails = await bookingDal.getByOrderId(orderId);
@@ -32,7 +32,7 @@ async function cancleBooking(orderId: string, userId: number): Promise<Booking> 
 	return cancledOrder;
 }
 
-async function deleteBooking(id: string, userId: number): Promise<void> {
+async function deleteBooking(id: number, userId: number): Promise<void> {
 	const booking = await bookingDal.getByOrderId(id);
 	const isAuthorized = await bookingDal.chekcAuthorization(id, userId);
 	if (!isAuthorized) throw Error(ErrorCodes.Unauthorized + " Your Unauthorized for this action ");

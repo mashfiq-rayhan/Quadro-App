@@ -58,17 +58,17 @@ model Session {
 }
 
 model Appointment {
-  id                String  			@id @unique @default(uuid())
+  id                Int      @id @default(autoincrement())
 
   duration          Int
-  published         Boolean  			@default(false)
-  depositAmount     Float?     			@default(0)
+  published         Boolean  @default(false)
+  depositAmount     Float?   @default(0)
 
-  createdAt         DateTime 			@default(now())
-  updatedAt         DateTime 			@updatedAt
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
 
-  service           Service  			@relation(fields: [serviceId], references: [id])
-  serviceId         String  			@unique
+  service           Service  @relation(fields: [serviceId], references: [id])
+  serviceId         Int  	 @unique
 
   @@map("appointments")
 }
@@ -83,29 +83,45 @@ enum PaymentType {
 	ONLINE
 }
 
+model ServicePicture {
+    id          Int             @id @default(autoincrement())
+    imageURL    String?         @db.VarChar(1000)
+    service     Service  		@relation(fields: [serviceId], references: [id])
+    serviceId   Int
+
+    @@map("servicePictures")
+}
+
+enum ServiceLocation {
+    AT_CLIENT_ADDRESS
+    AT_BUSINESS_ADDRESS
+    TO_BE_DETERMINED
+}
+
 model Service {
-  	id          String       		@id @unique @default(uuid())
+  	id             Int                     @id @default(autoincrement())
 
-  	name        String
-  	description String?
-  	location    String?	   			@default("To be determined")
-  	price       Float
-	paymentType PaymentType			@default(IN_PERSON)
-	serviceType ServiceType
+  	name           String
+  	description    String?
+  	location       String?     @default("TO_BE_DETERMINED")
+  	price          Float
+	paymentType    PaymentType			@default(IN_PERSON)
+	serviceType    ServiceType
 
-  	business	BusinessInfoSetting @relation(fields: [businessId],references: [id])
-  	businessId	Int
+  	business	   BusinessInfoSetting  @relation(fields: [businessId],references: [id])
+  	businessId	   Int
 
   	appointment Appointment?
   	class		Class?
 
+    images      ServicePicture[]
   	booking		Booking[]
 
   	@@map("services")
 }
 
 model ClassRepeat {
-  	id          String   @id @unique @default(uuid())
+  	id          Int                      @id @default(autoincrement())
 
 	week 		Int
 	monday 		Boolean  @default(false)
@@ -118,11 +134,11 @@ model ClassRepeat {
 
 	class		Class?
 
-  	@@map("class_repeats")
+    @@map("class_repeats")
 }
 
 model Class {
-  id                		String   	@id @unique @default(uuid())
+  id                		Int                      @id @default(autoincrement())
 
   maxNumberOfParticipants	Int
   duration          		Int?
@@ -134,24 +150,24 @@ model Class {
   updatedAt         		DateTime? 	@updatedAt
 
   service           		Service  	@relation(fields: [serviceId], references: [id])
-  serviceId         		String   	@unique
+  serviceId         		Int   		@unique
 
   repeat           			ClassRepeat @relation(fields: [repeatId], references: [id])
-  repeatId         			String  	@unique
+  repeatId         			Int  		@unique
 
   @@map("classes")
 }
 
 model Booking {
-	id                		String   	@id @unique @default(uuid())
+	id                		Int                      @id @default(autoincrement())
 
 	bookingTime		        DateTime?
 
-	service           		Service	@relation(fields: [serviceId], references: [id])
-  	serviceId         		String
+	service           		Service		@relation(fields: [serviceId], references: [id])
+  	serviceId         		Int
 
 	bookingType				ServiceType
-
+	location				String?		@default("")
 	note					String?		@default("")
 	active					Boolean		@default(true)
 
@@ -172,10 +188,10 @@ enum PaymentStatus {
 
 
 model Order {
-	id            String   				@id @unique @default(uuid())
+	id            Int                   @id @default(autoincrement())
 
 	booking	   	  Booking 				@relation(fields: [bookingId], references: [id])
-  	bookingId     String  				@unique
+  	bookingId     Int  					@unique
 
 	paymentStatus PaymentStatus			@default(UNPAID)
 

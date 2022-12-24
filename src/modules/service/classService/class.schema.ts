@@ -16,7 +16,7 @@ export const classParamsSchema = object({
 	params: object({
 		id: string({
 			required_error: "No Id Provided", // Arbitrary
-			invalid_type_error: "Id must be of Type String",
+			invalid_type_error: "Id must be of Type Number",
 		}),
 	}),
 });

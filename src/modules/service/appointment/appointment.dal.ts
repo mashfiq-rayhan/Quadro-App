@@ -28,7 +28,7 @@ async function create(payload: AppointmentInput): Promise<AppointmentDocument> {
 	return newAppointment;
 }
 
-async function getById(id: string): Promise<AppointmentDocument> {
+async function getById(id: number): Promise<AppointmentDocument> {
 	const targetAppointment = await prisma.appointment.findUnique({
 		where: {
 			id: id,
@@ -39,7 +39,7 @@ async function getById(id: string): Promise<AppointmentDocument> {
 	return targetAppointment;
 }
 
-async function update(id: string, payload: AppointmentInput): Promise<AppointmentDocument> {
+async function update(id: number, payload: AppointmentInput): Promise<AppointmentDocument> {
 	const targetAppointment = await getById(id);
 
 	if (!targetAppointment) throw Error(ErrorCodes.NotFound);
@@ -85,7 +85,7 @@ async function getbyFilter(filter: Prisma.AppointmentFindFirstArgsBase): Promise
 	return targetAppointment;
 }
 
-async function deleteById(id: string): Promise<void> {
+async function deleteById(id: number): Promise<void> {
 	const targetAppointment = await getById(id);
 	if (!targetAppointment) throw Error(ErrorCodes.NotFound);
 

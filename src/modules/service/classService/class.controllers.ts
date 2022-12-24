@@ -25,7 +25,7 @@ async function handelCreate(request: Request<{}, {}, ClassDto>, response: Respon
 async function handelUpdate(request: Request<ClassParamsDto, {}, ClassDto>, response: Response): Promise<Response> {
 	try {
 		const businessInfo = await getBusiness(request.userId);
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		const updatedClass = await classService.updateClass(id, { ...request.body, businessId: businessInfo.id });
 		return response.status(StatusCodes.OK).json(handleResponse(updatedClass));
 	} catch (error: any) {
@@ -35,7 +35,7 @@ async function handelUpdate(request: Request<ClassParamsDto, {}, ClassDto>, resp
 
 async function handelGet(request: Request<ClassParamsDto, {}, {}>, response: Response): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		console.log("ID :", id);
 		const newService = await classService.getClassById(id);
 		return response.status(StatusCodes.OK).json({
@@ -91,7 +91,7 @@ async function handelGetAllByBusiness(request: Request, response: Response): Pro
 
 async function handleDelete(request: Request<ClassParamsDto, {}, {}>, response: Response): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		await classService.deleteClass(id);
 		return response.status(StatusCodes.NO_CONTENT).json(handleResponse("OK"));
 	} catch (error: any) {

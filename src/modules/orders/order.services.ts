@@ -14,7 +14,7 @@ async function createOrder(payload: OrderServiceDto): Promise<OrderOutput> {
 	return orderMapper.toOrderOutput(order, booking);
 }
 
-async function getOrderById(id: string, userId: number): Promise<OrderOutput> {
+async function getOrderById(id: number, userId: number): Promise<OrderOutput> {
 	const order = await orderDal.getByIdAndValidate(id, userId);
 	const booking = await bookingService.getBookingbyId(order.bookingId);
 	return orderMapper.toOrderOutput(order, booking);
@@ -33,7 +33,7 @@ async function getAllOrdersByUsersClient(clientId: number, userId: number): Prom
 	return ordersList;
 }
 
-async function updateOrder(id: string, payload: OrderServiceDto): Promise<OrderOutput> {
+async function updateOrder(id: number, payload: OrderServiceDto): Promise<OrderOutput> {
 	const orderDetails = await getOrderById(id, payload.clientId);
 	// eslint-disable-next-line @typescript-eslint/no-unused-vars
 	const { booking, ...order } = orderDetails;
@@ -41,7 +41,7 @@ async function updateOrder(id: string, payload: OrderServiceDto): Promise<OrderO
 	return orderMapper.toOrderOutput(order, updatedBooking);
 }
 
-async function updateOrderStatus(id: string, userId: number, status: PaymentStatus): Promise<OrderDocument> {
+async function updateOrderStatus(id: number, userId: number, status: PaymentStatus): Promise<OrderDocument> {
 	if (status === PaymentStatus.CANCELED) {
 		await bookingService.cancleBooking(id, userId);
 	} else {
@@ -52,20 +52,24 @@ async function updateOrderStatus(id: string, userId: number, status: PaymentStat
 	return updatedOrder;
 }
 
-async function deleteOrder(orderId: string, userId: number): Promise<void> {
+async function deleteOrder(orderId: number, userId: number): Promise<void> {
 	const isAuthorized = await orderDal.chekcAuthorization(orderId, userId);
 	if (!isAuthorized) throw Error(ErrorCodes.Unauthorized + " Your Unauthorized for this action ");
 	await orderDal.deleteOrder(orderId, userId);
 	await bookingService.deleteBooking(orderId, userId);
 }
 
-async function checkAvailability(serviceId: string): Promise<boolean> {
+async function checkAvailability(serviceId: number): Promise<boolean> {
 	const serviceDetails = await servicesService.getServiceByTypeId(serviceId);
 	const orderCount = await orderDal.orderCount(serviceDetails.id);
 	if (serviceDetails.serviceType === ServiceType.CLASS && serviceDetails.class) {
 		if (orderCount >= serviceDetails.class?.maxNumberOfParticipants) return false;
 	}
 	return true;
+}
+
+async function getOrderAnalytics(startDate: string, endDate: string) {
+	return await orderDal.orderAnalytics(startDate, endDate);
 }
 
 const orderService = {
@@ -77,6 +81,7 @@ const orderService = {
 	deleteOrder,
 	getAllOrdersByUsersClient,
 	checkAvailability,
+	getOrderAnalytics,
 };
 
 export default orderService;

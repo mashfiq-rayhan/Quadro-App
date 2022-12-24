@@ -1,9 +1,9 @@
-import { object, string, TypeOf } from "zod";
+import { object, number, TypeOf } from "zod";
 
 export const bookingSchema = object({
-	serviceId: string({
+	serviceId: number({
 		required_error: "serviceId is required.",
-		invalid_type_error: "userId must be a String",
+		invalid_type_error: "userId must be a Number",
 	}),
 });
 

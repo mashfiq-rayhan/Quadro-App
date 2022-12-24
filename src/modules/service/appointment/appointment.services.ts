@@ -14,13 +14,13 @@ async function createAppointment(payload: AppointmentServiceDto): Promise<Appoin
 	return appointmentMapper.toAppointmentOutput(newAppointment);
 }
 
-async function updateAppointment(id: string, payload: AppointmentServiceDto): Promise<AppointmentOutput> {
+async function updateAppointment(id: number, payload: AppointmentServiceDto): Promise<AppointmentOutput> {
 	log.info("Updating Appointment");
 	const updatedAppointment = await appointmentDal.update(id, appointmentMapper.toAppointmentInput(payload));
 	return appointmentMapper.toAppointmentOutput(updatedAppointment);
 }
 
-async function getAppointmentById(id: string): Promise<AppointmentOutput> {
+async function getAppointmentById(id: number): Promise<AppointmentOutput> {
 	try {
 		const targerAppointment = await appointmentDal.getById(id);
 		return appointmentMapper.toAppointmentOutput(targerAppointment);
@@ -30,7 +30,7 @@ async function getAppointmentById(id: string): Promise<AppointmentOutput> {
 	}
 }
 
-async function getAppointmentServiceId(id: string): Promise<string> {
+async function getAppointmentServiceId(id: number): Promise<number> {
 	const targerAppointment = await appointmentDal.getById(id);
 	return targerAppointment.serviceId;
 }
@@ -83,7 +83,7 @@ async function getAppointmentByFilter(
 	return appointmentMapper.toAppointmentOutput(target);
 }
 
-async function deleteAppointment(id: string): Promise<void> {
+async function deleteAppointment(id: number): Promise<void> {
 	await appointmentDal.deleteById(id);
 }
 

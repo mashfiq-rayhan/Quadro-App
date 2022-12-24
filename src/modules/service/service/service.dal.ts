@@ -3,7 +3,7 @@ import { ServiceDocument } from "./service.interface";
 import { ErrorCodes } from "../../../errors/ErrorCodes";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export async function getServiceByTypeId(id: string): Promise<ServiceDocument | any> {
+export async function getServiceByTypeId(id: number): Promise<ServiceDocument | any> {
 	const targerService = await prisma.service.findFirst({
 		where: {
 			OR: [

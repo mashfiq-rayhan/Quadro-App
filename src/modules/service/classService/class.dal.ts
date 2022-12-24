@@ -32,7 +32,7 @@ async function create(payload: ClassInput): Promise<ClassDocument> {
 	return newAppointment;
 }
 
-async function getById(id: string): Promise<ClassDocument> {
+async function getById(id: number): Promise<ClassDocument> {
 	const targetClass = await prisma.class.findUnique({
 		where: {
 			id: id,
@@ -43,7 +43,7 @@ async function getById(id: string): Promise<ClassDocument> {
 	return targetClass;
 }
 
-async function update(id: string, payload: ClassInput): Promise<ClassDocument> {
+async function update(id: number, payload: ClassInput): Promise<ClassDocument> {
 	const targetClass = await getById(id);
 
 	const updatedClass = await prisma.class.update({
@@ -78,7 +78,7 @@ async function getAllbyFilter(filter: Prisma.ClassFindManyArgs): Promise<Array<C
 	return classList;
 }
 
-async function deleteById(id: string): Promise<void> {
+async function deleteById(id: number): Promise<void> {
 	const targetClass = await getById(id);
 
 	await prisma.class.delete({

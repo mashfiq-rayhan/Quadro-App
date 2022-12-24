@@ -32,7 +32,7 @@ async function handelUpdate(
 	response: Response,
 ): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 
 		const businessInfo = await getBusiness(request.userId);
 
@@ -50,7 +50,7 @@ async function handelUpdate(
 
 async function handelGet(request: Request<AppointmentParamsDto, {}, {}>, response: Response): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		const newService = await appointmentService.getAppointmentById(id);
 		return response.status(StatusCodes.OK).json({
 			success: true,
@@ -110,7 +110,7 @@ async function handelGetAllByBusiness(request: Request, response: Response): Pro
 
 async function handleDelete(request: Request<AppointmentParamsDto, {}, {}>, response: Response): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		await appointmentService.deleteAppointment(id);
 		return response.status(StatusCodes.NO_CONTENT).json(handleResponse("OK"));
 	} catch (error: any) {

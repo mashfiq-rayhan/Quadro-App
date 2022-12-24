@@ -11,13 +11,13 @@ export async function createClass(payload: ClassServiceDto): Promise<ClassOutput
 	return classMapper.toClassOutput(newClass);
 }
 
-export async function updateClass(id: string, payload: ClassServiceDto): Promise<ClassOutput> {
+export async function updateClass(id: number, payload: ClassServiceDto): Promise<ClassOutput> {
 	log.info("Updating Class Info");
 	const updatedClass = await classDal.update(id, classMapper.toClassInput(payload));
 	return classMapper.toClassOutput(updatedClass);
 }
 
-export async function getClassById(id: string): Promise<ClassOutput> {
+export async function getClassById(id: number): Promise<ClassOutput> {
 	log.info("Getting Single Class ");
 
 	try {
@@ -29,7 +29,7 @@ export async function getClassById(id: string): Promise<ClassOutput> {
 	}
 }
 
-export async function getClassServiceId(id: string): Promise<string> {
+export async function getClassServiceId(id: number): Promise<number> {
 	const targerClass = await classDal.getById(id);
 	return targerClass.serviceId;
 }
@@ -77,7 +77,7 @@ export async function getAllClasssByBusiness(businessId: number): Promise<Array<
 	return mapList(classsList);
 }
 
-export async function deleteClass(id: string): Promise<void> {
+export async function deleteClass(id: number): Promise<void> {
 	await classDal.deleteById(id);
 }
 

@@ -12,8 +12,8 @@ export interface ClassRepeatDto {
 
 // FOR DB CHANGE
 export interface ClassRepeatDocument extends Required<ClassRepeatInput> {
-	id: string;
-	classId: string;
+	id: number;
+	classId: number;
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 }

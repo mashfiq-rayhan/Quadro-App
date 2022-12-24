@@ -3,6 +3,7 @@ import { PaymentStatus } from "@prisma/client";
 import log from "@providers/logger.provider";
 import { handleResponse } from "@src/common/handler/response.handler";
 import handleError from "@src/errors/handleError";
+import dayjs from "dayjs";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 
@@ -13,7 +14,7 @@ import orderService from "./order.services";
 async function handelCreate(request: Request<{}, OrderQueryDto, OrderDto>, response: Response): Promise<Response> {
 	try {
 		const { userId } = request;
-		if (!(await orderService.checkAvailability(request.body.serviceId)))
+		if (!(await orderService.checkAvailability(Number(request.body.serviceId))))
 			return response.status(StatusCodes.NOT_ACCEPTABLE).json(handleResponse(" The Class Limit is Full ", true));
 		const newOrder = await orderService.createOrder({
 			...request.body,
@@ -32,7 +33,7 @@ export async function handelUpdate(
 	response: Response,
 ): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		const { userId } = request;
 
 		const updatedOrder = await orderService.updateOrder(id, {
@@ -48,7 +49,7 @@ export async function handelUpdate(
 
 async function handelGet(request: Request<OrderParamsDto, {}, {}>, response: Response): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		const { userId } = request;
 		const targetOrder = await orderService.getOrderById(id, Number(userId));
 		return response.status(StatusCodes.OK).json({
@@ -78,7 +79,7 @@ async function handelGetAllByUser(request: Request, response: Response): Promise
 async function handelUpdateOrderStatus(request: Request, response: Response): Promise<Response> {
 	try {
 		const userId = Number(request.userId);
-		const orderId = String(request.params.id);
+		const orderId = Number(request.params.id);
 		const updateTo: string = String(request.body.status);
 		const updatedOrder = await orderService.updateOrderStatus(
 			orderId,
@@ -93,7 +94,7 @@ async function handelUpdateOrderStatus(request: Request, response: Response): Pr
 
 export async function handleDelete(request: Request<OrderParamsDto, {}, {}>, response: Response): Promise<Response> {
 	try {
-		const id = request.params.id;
+		const id = Number(request.params.id);
 		const userId = Number(request.userId);
 		await orderService.deleteOrder(id, userId);
 		return response.status(StatusCodes.NO_CONTENT).json(handleResponse("OK"));
@@ -113,6 +114,18 @@ async function handelGetAllByClient(request: Request<OrderParamsDto, {}, {}>, re
 	}
 }
 
+async function handelAnalytics(request: Request, response: Response): Promise<Response> {
+	try {
+		const firstDayay = dayjs(`${request.query.year}-${request.query.month}-1`);
+		const lastDay = dayjs(firstDayay).endOf("M");
+		return response
+			.status(StatusCodes.OK)
+			.json(handleResponse(await orderService.getOrderAnalytics(firstDayay.toString(), lastDay.toString())));
+	} catch (error: any) {
+		return handleError(response, error);
+	}
+}
+
 const orderController = {
 	handelCreate,
 	handelUpdate,
@@ -121,6 +134,7 @@ const orderController = {
 	handelGetAllByClient,
 	handelUpdateOrderStatus,
 	handleDelete,
+	handelAnalytics,
 };
 
 export default orderController;

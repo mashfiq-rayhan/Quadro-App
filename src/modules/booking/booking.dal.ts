@@ -9,6 +9,7 @@ async function create(payload: BookingInput): Promise<BookingDocument> {
 		data: {
 			bookingTime: payload.bookingTime,
 			bookingType: payload.bookingType,
+			location: payload.location,
 			note: payload.note,
 			service: {
 				connect: { id: payload.serviceId },
@@ -19,7 +20,7 @@ async function create(payload: BookingInput): Promise<BookingDocument> {
 	return newBooking;
 }
 
-async function getById(id: string): Promise<BookingDocument> {
+async function getById(id: number): Promise<BookingDocument> {
 	const targetBooking = await prisma.booking.findUnique({
 		where: {
 			id: id,
@@ -31,7 +32,7 @@ async function getById(id: string): Promise<BookingDocument> {
 	return targetBooking;
 }
 
-async function getByOrderId(id: string): Promise<BookingDocument> {
+async function getByOrderId(id: number): Promise<BookingDocument> {
 	const targetBooking = await prisma.booking.findFirst({
 		where: {
 			order: {
@@ -45,7 +46,7 @@ async function getByOrderId(id: string): Promise<BookingDocument> {
 	return targetBooking;
 }
 
-async function update(id: string, payload: BookingInput): Promise<BookingDocument> {
+async function update(id: number, payload: BookingInput): Promise<BookingDocument> {
 	const targetBooking = await getById(id);
 
 	if (!targetBooking) throw Error(ErrorCodes.NotFound);
@@ -64,7 +65,7 @@ async function update(id: string, payload: BookingInput): Promise<BookingDocumen
 	return updatedBooking;
 }
 
-async function chekcAuthorization(id: string, userId: number): Promise<boolean> {
+async function chekcAuthorization(id: number, userId: number): Promise<boolean> {
 	const isAuthorized = await prisma.booking.findFirst({
 		where: {
 			OR: [
@@ -81,7 +82,7 @@ async function chekcAuthorization(id: string, userId: number): Promise<boolean> 
 	return true;
 }
 
-async function cancelBooking(id: string): Promise<Booking> {
+async function cancelBooking(id: number): Promise<Booking> {
 	const cancledBooking = await prisma.booking.update({
 		where: {
 			id: id,
@@ -98,7 +99,7 @@ async function getAll(): Promise<Array<BookingDocument>> {
 	return BookingsList;
 }
 
-async function deleteById(id: string): Promise<void> {
+async function deleteById(id: number): Promise<void> {
 	await prisma.booking.delete({
 		where: {
 			id: id,

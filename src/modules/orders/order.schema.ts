@@ -1,6 +1,6 @@
 import { PaymentStatus, ServiceType } from "@prisma/client";
 import lodash from "lodash";
-import { object, string, TypeOf } from "zod";
+import { number, object, string, TypeOf } from "zod";
 
 import { bookingSchema, bookingUpdateSchema } from "../booking/booking.schema";
 

@@ -22,7 +22,7 @@ async function create(payload: OrderInput): Promise<OrderDocument> {
 	return newOrder;
 }
 
-async function orderCount(serviceId: string): Promise<number> {
+async function orderCount(serviceId: number): Promise<number> {
 	const count = await prisma.order.count({
 		where: {
 			booking: {
@@ -34,7 +34,7 @@ async function orderCount(serviceId: string): Promise<number> {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-async function update(id: string, payload: OrderInput): Promise<OrderDocument> {
+async function update(id: number, payload: OrderInput): Promise<OrderDocument> {
 	const updatedOrder = await prisma.order.update({
 		where: {
 			id: id,
@@ -46,7 +46,7 @@ async function update(id: string, payload: OrderInput): Promise<OrderDocument> {
 	return updatedOrder;
 }
 
-async function getById(id: string): Promise<boolean> {
+async function getById(id: number): Promise<boolean> {
 	const order = await prisma.order.findFirst({
 		where: { id: id },
 	});
@@ -54,7 +54,7 @@ async function getById(id: string): Promise<boolean> {
 	return true;
 }
 
-async function getByIdAndValidate(id: string, userId: number): Promise<OrderDocument> {
+async function getByIdAndValidate(id: number, userId: number): Promise<OrderDocument> {
 	const order = await prisma.order.findFirst({
 		where: {
 			AND: [
@@ -91,6 +91,7 @@ async function getAllByUser(id: number): Promise<Array<OrderDocument>> {
 					service: true,
 					bookingTime: true,
 					bookingType: true,
+					location: true,
 					note: true,
 				},
 			},
@@ -110,6 +111,7 @@ async function getAllByClient(id: number): Promise<Array<OrderDocument>> {
 					service: true,
 					bookingTime: true,
 					bookingType: true,
+					location: true,
 					note: true,
 				},
 			},
@@ -118,7 +120,7 @@ async function getAllByClient(id: number): Promise<Array<OrderDocument>> {
 	return order;
 }
 
-async function chekcAuthorization(orderId: string, userId: number): Promise<boolean> {
+async function chekcAuthorization(orderId: number, userId: number): Promise<boolean> {
 	await getById(orderId);
 	const isAuthenticated = await prisma.order.findFirst({
 		where: {
@@ -136,7 +138,7 @@ async function chekcAuthorization(orderId: string, userId: number): Promise<bool
 	return true;
 }
 
-async function updateStatus(orderId: string, payload: PaymentStatus): Promise<OrderDocument> {
+async function updateStatus(orderId: number, payload: PaymentStatus): Promise<OrderDocument> {
 	const updatedOrder = await prisma.order.update({
 		where: {
 			id: orderId,
@@ -148,7 +150,7 @@ async function updateStatus(orderId: string, payload: PaymentStatus): Promise<Or
 	return updatedOrder;
 }
 
-async function deleteOrder(id: string, userId: number): Promise<void> {
+async function deleteOrder(id: number, userId: number): Promise<void> {
 	const isAuthorized = chekcAuthorization(id, userId);
 	if (!isAuthorized) throw Error(ErrorCodes.Unauthorized + " : your Not Authorized for this action");
 	await prisma.order.delete({
@@ -176,12 +178,40 @@ async function getAllByUsersClient(clientId: number, userId: number): Promise<Ar
 					service: true,
 					bookingTime: true,
 					bookingType: true,
+					location: true,
 					note: true,
 				},
 			},
 		},
 	});
 	return data;
+}
+
+async function orderAnalytics(startDate: string, endDate: string): Promise<Array<OrderDocument>> {
+	const tottalRevenue = await prisma.order.findMany({
+		where: {
+			AND: [
+				{
+					createdAt: {
+						lte: endDate,
+						gt: startDate,
+					},
+				},
+			],
+		},
+		include: {
+			booking: {
+				select: {
+					service: true,
+					bookingTime: true,
+					bookingType: true,
+					location: true,
+					note: true,
+				},
+			},
+		},
+	});
+	return tottalRevenue;
 }
 
 const orderDal = {
@@ -195,5 +225,6 @@ const orderDal = {
 	deleteOrder,
 	getAllByUsersClient,
 	orderCount,
+	orderAnalytics,
 };
 export default orderDal;

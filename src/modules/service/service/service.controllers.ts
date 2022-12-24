@@ -7,7 +7,7 @@ import servicesService from "./service.services";
 
 export async function getServiceById(request: Request, response: Response): Promise<Response> {
 	try {
-		const service = await servicesService.getServiceByTypeId(request.params.id);
+		const service = await servicesService.getServiceByTypeId(Number(request.params.id));
 		return response.status(StatusCodes.OK).json(handleResponse(service));
 	} catch (error) {
 		return handleError(response, error);

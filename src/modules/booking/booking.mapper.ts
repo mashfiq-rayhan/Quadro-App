@@ -4,7 +4,8 @@ import { BookingDocument, BookingDto, BookingInput, BookingOutput } from "./book
 
 export function toBookingInput(payload: BookingDto): BookingInput {
 	return {
-		serviceId: payload.serviceId ? payload.serviceId : "",
+		serviceId: payload.serviceId,
+		location: payload.location,
 		bookingType: payload.bookingType ? ServiceType[payload.bookingType] : "",
 		bookingTime: payload.bookingTime ? new Date(payload.bookingTime) : null,
 		note: payload.note ? payload.note : "",
@@ -20,5 +21,6 @@ export function toBookingOutput(payload: BookingDocument): BookingOutput {
 		bookingTime: payload.bookingTime,
 		bookingType: payload.bookingType,
 		note: payload.note,
+		location: payload.location,
 	};
 }
