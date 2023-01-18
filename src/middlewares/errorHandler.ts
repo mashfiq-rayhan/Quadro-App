@@ -14,7 +14,7 @@ import { gracefulErrorHandler } from "@src/errors/ErrorHandler";
 const errorHandler = (err: Error, req: Request, res: Response, next: NextFunction): void => {
 	log.error("[error] catch in global middleware.");
 	log.info(`[error] Path: ${req.path}`);
-	log.error(JSON.stringify(err));
+	log.error(JSON.stringify(err, null, 2));
 
 	gracefulErrorHandler.handleError(err, res);
 };

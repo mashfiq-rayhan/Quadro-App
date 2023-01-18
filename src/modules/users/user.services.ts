@@ -30,6 +30,10 @@ export class UserServices {
 		});
 	};
 
+	public updateUser = async (data: Prisma.UserUpdateArgs) => {
+		return await prisma.user.update(data);
+	};
+
 	public findOne = async (filter: Prisma.UserFindFirstArgs) => {
 		log.info("[service] findOne");
 

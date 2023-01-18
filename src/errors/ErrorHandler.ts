@@ -15,8 +15,11 @@ class ErrorHandler {
 	}
 
 	private static handleTrustedError(error: CustomError, res: Response): Response {
-		console.log(error);
-		return res.status(error.status).json(error);
+		return res.status(error.status).json({
+			success: false,
+			data: null,
+			errors: error,
+		});
 	}
 
 	private static handleCriticalError(error: Error | CustomError, res?: Response): Response | void {

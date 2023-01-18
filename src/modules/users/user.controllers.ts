@@ -5,6 +5,7 @@ import log from "@providers/logger.provider";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
 import userServices, { UserServices } from "@modules/users/user.services";
+import { returnVal } from "@utils/return";
 
 export class UsersController {
 	private userServices: UserServices = userServices;
@@ -31,7 +32,7 @@ export class UsersController {
 
 		try {
 			const user = await this.userServices.createUser(body);
-			return res.status(201).json(user);
+			return res.status(201).json(returnVal(user));
 		} catch (error: any) {
 			console.log(error);
 			if (error.code === 11000) {

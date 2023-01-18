@@ -2,16 +2,19 @@ import { NextFunction, Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
 import { get } from "lodash";
 import log from "@providers/logger.provider";
-import { LoginDto } from "./auth.schema";
+import { LoginDto, UserUpdateDto } from "./auth.schema";
 import { IUser } from "@modules/users/user.schema";
 import { CustomError } from "@src/errors/CustomError";
 import { ErrorCodes } from "@src/errors/ErrorCodes";
 import userServices, { UserServices } from "@modules/users/user.services";
 import authService, { AuthServices } from "@modules/auth/auth.services";
+import settingsServices, { SettingsServices } from "@modules/settings/settings.services";
+import { returnVal } from "@utils/return";
 
 export class AuthController {
 	private authService: AuthServices = authService;
 	private userServices: UserServices = userServices;
+	private settingsServices: SettingsServices = settingsServices;
 
 	public protectedRoute = async (req: Request, res: Response): Promise<Response> => {
 		return res.status(200).send("Protected route");
@@ -65,6 +68,8 @@ export class AuthController {
 			);
 		}
 
+		const settings = await this.settingsServices.findBusinessInfo({ where: { userId: user.id } });
+
 		const minutes = 60 * 24 * 30 * 12;
 		const accessToken = this.authService.signAccessToken(user, minutes);
 		const refreshToken = await this.authService.signRefreshToken(user);
@@ -88,11 +93,15 @@ export class AuthController {
 			secure: false,
 		});
 
-		return res.status(200).json({
-			accessToken,
-			refreshToken,
-			expiresIn: `${minutes} m`,
-		});
+		return res.status(200).json(
+			returnVal({
+				accessToken,
+				refreshToken,
+				expiresIn: `${minutes} m`,
+				isOnboardingCompleted: !!settings,
+				subdomain: settings ? settings.link : null,
+			}),
+		);
 	};
 
 	public authenticateGoogleUser = async (req, res, next): Promise<Response> => {
@@ -111,6 +120,8 @@ export class AuthController {
 			);
 		}
 
+		const settings = await this.settingsServices.findBusinessInfo({ where: { userId: user.id } });
+
 		const minutes = 60 * 24 * 30 * 12;
 		const accessToken = this.authService.signAccessToken(user, minutes);
 		const refreshToken = await this.authService.signRefreshToken(user);
@@ -134,11 +145,15 @@ export class AuthController {
 			secure: false,
 		});
 
-		return res.status(200).json({
-			accessToken,
-			refreshToken,
-			expiresIn: `${minutes} m`,
-		});
+		return res.status(200).json(
+			returnVal({
+				accessToken,
+				refreshToken,
+				expiresIn: `${minutes} m`,
+				isOnboardingCompleted: !!settings,
+				subdomain: settings ? settings.link : null,
+			}),
+		);
 	};
 
 	public getCurrentUser = async (
@@ -147,11 +162,28 @@ export class AuthController {
 		next: NextFunction,
 	): Promise<Response | void | CustomError> => {
 		const { userId } = req;
+		console.log({ userId });
 
 		try {
 			if (userId) {
-				const user = await this.userServices.findUserById(userId);
-				if (user) return res.status(200).send(user);
+				const user = await this.userServices.findOne({
+					where: { id: userId },
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+						profilePicture: true,
+						utm_campaign: true,
+						utm_source: true,
+						utm_medium: true,
+						utm_content: true,
+						createdAt: true,
+						updatedAt: true,
+					},
+				});
+				console.log({ user });
+				if (user) return res.status(200).send(returnVal(user));
 				else
 					return next(
 						new CustomError({
@@ -162,6 +194,58 @@ export class AuthController {
 					);
 			}
 		} catch (err) {
+			return next(
+				new CustomError({
+					code: ErrorCodes.NotFound,
+					status: StatusCodes.NOT_FOUND,
+					description: "User not found.",
+				}),
+			);
+		}
+	};
+
+	public updateCurrentUser = async (
+		req: Request<{}, {}, UserUpdateDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void | CustomError> => {
+		const { userId } = req;
+		const body = req.body;
+
+		try {
+			if (userId) {
+				const user = await this.userServices.updateUser({
+					where: { id: userId },
+					data: body,
+					select: {
+						id: true,
+						name: true,
+						email: true,
+						phone: true,
+						profilePicture: true,
+						utm_campaign: true,
+						utm_source: true,
+						utm_medium: true,
+						utm_content: true,
+						createdAt: true,
+						updatedAt: true,
+					},
+				});
+				return res.status(200).send(returnVal(user));
+			}
+		} catch (err: any) {
+			console.log(err);
+
+			if (err?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: err?.meta?.cause,
+					}),
+				);
+			}
+
 			return next(
 				new CustomError({
 					code: ErrorCodes.NotFound,
@@ -234,10 +318,12 @@ export class AuthController {
 			secure: false,
 		});
 
-		return res.status(200).json({
-			accessToken,
-			expiresIn: `${minutes} m`,
-		});
+		return res.status(200).json(
+			returnVal({
+				accessToken,
+				expiresIn: `${minutes} m`,
+			}),
+		);
 	};
 }
 

@@ -33,6 +33,8 @@ class AuthRouter {
 
 		this.router.get("/me", [requireUserHandler], this.authController.getCurrentUser);
 
+		this.router.put("/me", [requireUserHandler], this.authController.updateCurrentUser);
+
 		this.router.post("/refresh", [requireUserHandler], this.authController.refreshAccessToken);
 	};
 }

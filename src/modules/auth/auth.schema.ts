@@ -8,3 +8,17 @@ export const loginSchema = object({
 });
 
 export type LoginDto = TypeOf<typeof loginSchema>["body"];
+
+export const userUpdateSchema = object({
+	body: object({
+		name: string().optional(),
+		phone: string().optional(),
+		profilePicture: string().optional(),
+		utm_campaign: string().optional(),
+		utm_source: string().optional(),
+		utm_medium: string().optional(),
+		utm_content: string().optional(),
+	}),
+});
+
+export type UserUpdateDto = TypeOf<typeof userUpdateSchema>["body"];

@@ -28,6 +28,8 @@ export const businessInfoCreateSchema = object({
 		description: string().optional(),
 		link: string().optional(),
 		address: string().optional(),
+		phone: string().optional(),
+		serviceKind: string().optional(),
 		logo: string().optional(),
 		openHours: any().optional(),
 		calendar: string().optional(),
@@ -89,10 +91,43 @@ export type SubscriptionCreateDto = TypeOf<typeof subscriptionCreateSchema>["bod
 export const transactionCreateSchema = object({
 	body: object({
 		amount: number(),
-		uId: number().optional(),
-		subId: number().optional(),
-		planId: number().optional(),
+		uId: number().int().nonnegative().optional(),
+		subId: number().int().nonnegative().optional(),
+		planId: number().int().nonnegative().optional(),
 	}),
 });
 
 export type TransactionCreateDto = TypeOf<typeof transactionCreateSchema>["body"];
+
+export const digitalPaymentCreateSchema = object({
+	body: object({
+		verify: boolean().optional(),
+		pix: boolean().optional(),
+		megapay: boolean().optional(),
+		payeer: boolean().optional(),
+		cash: boolean().optional(),
+	}),
+});
+
+export type DigitalPaymentCreateDto = TypeOf<typeof digitalPaymentCreateSchema>["body"];
+
+export const fullPotentialSchema = object({
+	body: object({
+		data: any().optional(),
+	}),
+});
+
+export type FullPotentialDto = TypeOf<typeof fullPotentialSchema>["body"];
+
+export const completePercentageSchema = object({
+	body: object({
+		schedulingOnline: boolean().optional(),
+		increaseCatalogue: boolean().optional(),
+		digitalPayments: boolean().optional(),
+		importCustomers: boolean().optional(),
+		protectYourself: boolean().optional(),
+		automaticCharges: boolean().optional(),
+	}),
+});
+
+export type CompletePercentageDto = TypeOf<typeof completePercentageSchema>["body"];

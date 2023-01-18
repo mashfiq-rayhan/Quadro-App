@@ -8,18 +8,20 @@ import {
 	AutomaticChargesCreateDto,
 	BankAccountCreateDto,
 	BusinessInfoCreateDto,
+	CompletePercentageDto,
+	DigitalPaymentCreateDto,
+	FullPotentialDto,
 	ProtectionCreateDto,
 	SubscriptionCreateDto,
 	SubscriptionPlanCreateDto,
 	TransactionCreateDto,
 } from "@modules/settings/settings.schemas";
-import userServices, { UserServices } from "@modules/users/user.services";
+import { returnVal } from "@utils/return";
 
 export class SettingsController {
 	private settingsServices: SettingsServices = settingsServices;
-	private userServices: UserServices = userServices;
 
-	private userSelect = {
+	private userSelect: object = {
 		id: true,
 		name: true,
 		email: true,
@@ -40,12 +42,12 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const account = await settingsServices.upsertBankAccount({
+			const account = await this.settingsServices.upsertBankAccount({
 				create: { ...body, user: { connect: { id: userId } } },
 				update: body,
 				where: { userId },
 			});
-			return res.status(StatusCodes.CREATED).json(account);
+			return res.status(StatusCodes.CREATED).json(returnVal(account));
 		} catch (e) {
 			console.log(e);
 			return next(
@@ -63,10 +65,10 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const account = await settingsServices.findBankAccount({ where: { userId } });
+			const account = await this.settingsServices.findBankAccount({ where: { userId } });
 
 			if (account) {
-				return res.status(StatusCodes.OK).json(account);
+				return res.status(StatusCodes.OK).json(returnVal(account));
 			} else {
 				return next(
 					new CustomError({
@@ -93,10 +95,10 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			const account = await settingsServices.findBankAccount({ where: { id: Number(id) } });
+			const account = await this.settingsServices.findBankAccount({ where: { id: Number(id) } });
 
 			if (account) {
-				return res.status(StatusCodes.OK).json(account);
+				return res.status(StatusCodes.OK).json(returnVal(account));
 			} else {
 				return next(
 					new CustomError({
@@ -123,7 +125,7 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			await settingsServices.deleteBankAccount({ where: { userId } });
+			await this.settingsServices.deleteBankAccount({ where: { userId } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -152,7 +154,7 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			await settingsServices.deleteBankAccount({ where: { id: Number(id) } });
+			await this.settingsServices.deleteBankAccount({ where: { id: Number(id) } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -186,12 +188,52 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const settings = await settingsServices.upsertBusinessInfo({
+			const settings = await this.settingsServices.upsertBusinessInfo({
 				create: { ...body, user: { connect: { id: userId } } },
 				update: body,
 				where: { userId },
 			});
-			return res.status(StatusCodes.CREATED).json(settings);
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public checkServiceLink = async (
+		req: Request<{}, {}, {}, { link: string }>,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] checkServiceLink");
+		const { link } = req.query;
+
+		try {
+			if (link) {
+				const settings = await this.settingsServices.findBusinessInfo({ where: { link } });
+
+				if (settings) {
+					return res.status(StatusCodes.OK).json(returnVal({ message: `Link "${link}" already exists` }));
+				} else {
+					return res
+						.status(StatusCodes.NOT_FOUND)
+						.json(returnVal({ message: `Link "${link}" does not exist` }));
+				}
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.ValidationError,
+						status: StatusCodes.BAD_REQUEST,
+						description: "No link provided.",
+					}),
+				);
+			}
 		} catch (e) {
 			console.log(e);
 			return next(
@@ -209,10 +251,10 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const settings = await settingsServices.findBusinessInfo({ where: { userId } });
+			const settings = await this.settingsServices.findBusinessInfo({ where: { userId } });
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -239,10 +281,10 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			const settings = await settingsServices.findBusinessInfo({ where: { id: Number(id) } });
+			const settings = await this.settingsServices.findBusinessInfo({ where: { id: Number(id) } });
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -269,7 +311,7 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			await settingsServices.deleteBusinessInfo({ where: { userId } });
+			await this.settingsServices.deleteBusinessInfo({ where: { userId } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -298,7 +340,7 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			await settingsServices.deleteBusinessInfo({ where: { id: Number(id) } });
+			await this.settingsServices.deleteBusinessInfo({ where: { id: Number(id) } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -332,12 +374,12 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const settings = await settingsServices.upsertProtectionSetting({
+			const settings = await this.settingsServices.upsertProtectionSetting({
 				create: { ...body, user: { connect: { id: userId } } },
 				update: body,
 				where: { userId },
 			});
-			return res.status(StatusCodes.CREATED).json(settings);
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
 		} catch (e) {
 			console.log(e);
 			return next(
@@ -359,10 +401,10 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const settings = await settingsServices.findProtectionSetting({ where: { userId } });
+			const settings = await this.settingsServices.findProtectionSetting({ where: { userId } });
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -393,10 +435,10 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			const settings = await settingsServices.findProtectionSetting({ where: { id: Number(id) } });
+			const settings = await this.settingsServices.findProtectionSetting({ where: { id: Number(id) } });
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -427,7 +469,7 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			await settingsServices.deleteProtectionSetting({ where: { userId } });
+			await this.settingsServices.deleteProtectionSetting({ where: { userId } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -460,7 +502,7 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			await settingsServices.deleteProtectionSetting({ where: { id: Number(id) } });
+			await this.settingsServices.deleteProtectionSetting({ where: { id: Number(id) } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -494,12 +536,12 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const settings = await settingsServices.upsertAutomaticCharges({
+			const settings = await this.settingsServices.upsertAutomaticCharges({
 				create: { ...body, user: { connect: { id: userId } } },
 				update: body,
 				where: { userId },
 			});
-			return res.status(StatusCodes.CREATED).json(settings);
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
 		} catch (e) {
 			console.log(e);
 			return next(
@@ -521,10 +563,10 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			const settings = await settingsServices.findAutomaticCharges({ where: { userId } });
+			const settings = await this.settingsServices.findAutomaticCharges({ where: { userId } });
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -551,10 +593,10 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			const settings = await settingsServices.findAutomaticCharges({ where: { id: Number(id) } });
+			const settings = await this.settingsServices.findAutomaticCharges({ where: { id: Number(id) } });
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -585,7 +627,7 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			await settingsServices.deleteAutomaticCharges({ where: { userId } });
+			await this.settingsServices.deleteAutomaticCharges({ where: { userId } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -618,7 +660,7 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			await settingsServices.deleteAutomaticCharges({ where: { id: Number(id) } });
+			await this.settingsServices.deleteAutomaticCharges({ where: { id: Number(id) } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -653,14 +695,14 @@ export class SettingsController {
 
 		try {
 			if (id) {
-				const settings = await settingsServices.updateSubscriptionPlan({
+				const settings = await this.settingsServices.updateSubscriptionPlan({
 					where: { id: Number(id) },
 					data: body,
 				});
 				return res.status(StatusCodes.OK).json(settings);
 			} else {
-				const settings = await settingsServices.createSubscriptionPlan({ data: body });
-				return res.status(StatusCodes.CREATED).json(settings);
+				const settings = await this.settingsServices.createSubscriptionPlan({ data: body });
+				return res.status(StatusCodes.CREATED).json(returnVal(settings));
 			}
 		} catch (e: any) {
 			console.log(e);
@@ -690,10 +732,10 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			const settings = await settingsServices.findSubscriptionPlan({ where: { id: Number(id) } });
+			const settings = await this.settingsServices.findSubscriptionPlan({ where: { id: Number(id) } });
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -719,10 +761,10 @@ export class SettingsController {
 		log.info("[controller] getSubscriptionPlans");
 
 		try {
-			const settings = await settingsServices.getSubscriptionPlans({});
+			const settings = await this.settingsServices.getSubscriptionPlans({});
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -753,7 +795,7 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			await settingsServices.deleteSubscriptionPlan({ where: { id: Number(id) } });
+			await this.settingsServices.deleteSubscriptionPlan({ where: { id: Number(id) } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -788,7 +830,7 @@ export class SettingsController {
 		const { planId, ...others } = body;
 
 		try {
-			const settings = await settingsServices.upsertSubscription({
+			const settings = await this.settingsServices.upsertSubscription({
 				create: {
 					...others,
 					user: { connect: { id: userId } },
@@ -797,7 +839,7 @@ export class SettingsController {
 				update: { ...others, subscriptionPlan: planId ? { connect: { id: planId } } : undefined },
 				where: { userId },
 			});
-			return res.status(StatusCodes.CREATED).json(settings);
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
 		} catch (e) {
 			console.log(e);
 			return next(
@@ -820,7 +862,7 @@ export class SettingsController {
 		const { hasUser, hasPlan } = req.query;
 
 		try {
-			const settings = await settingsServices.findSubscription({
+			const settings = await this.settingsServices.findSubscription({
 				where: { userId },
 				include: {
 					user: hasUser ? { select: this.userSelect } : false,
@@ -829,7 +871,7 @@ export class SettingsController {
 			});
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -861,7 +903,7 @@ export class SettingsController {
 		const { hasUser, hasPlan } = req.query;
 
 		try {
-			const settings = await settingsServices.findSubscription({
+			const settings = await this.settingsServices.findSubscription({
 				where: { id: Number(id) },
 				include: {
 					user: hasUser ? { select: this.userSelect } : false,
@@ -870,7 +912,7 @@ export class SettingsController {
 			});
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -901,7 +943,7 @@ export class SettingsController {
 		const { hasUser, hasPlan, take, skip } = req.query;
 
 		try {
-			const settings = await settingsServices.getSubscriptions({
+			const settings = await this.settingsServices.getSubscriptions({
 				include: {
 					user: hasUser ? { select: this.userSelect } : false,
 					subscriptionPlan: Boolean(hasPlan),
@@ -911,7 +953,7 @@ export class SettingsController {
 			});
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -938,7 +980,7 @@ export class SettingsController {
 		const { userId } = req;
 
 		try {
-			await settingsServices.deleteSubscription({ where: { userId } });
+			await this.settingsServices.deleteSubscription({ where: { userId } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -967,7 +1009,7 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			await settingsServices.deleteSubscription({ where: { id: Number(id) } });
+			await this.settingsServices.deleteSubscription({ where: { id: Number(id) } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -1003,19 +1045,30 @@ export class SettingsController {
 		const { planId, subId, ...others } = body;
 
 		try {
-			const settings = await settingsServices.upsertTransaction({
+			const settings = await this.settingsServices.upsertTransaction({
 				create: {
 					...others,
 					user: { connect: { id: userId } },
-					subscription: subId ? { connect: { userId, id: subId } } : undefined,
+					subscription: subId ? { connect: { id: subId } } : undefined,
 					subscriptionPlan: planId ? { connect: { id: planId } } : undefined,
 				},
 				update: { ...others, subscriptionPlan: planId ? { connect: { id: planId } } : undefined },
-				where: { id: Number(id) },
+				where: { id: id ? Number(id) : 0 },
 			});
-			return res.status(StatusCodes.CREATED).json(settings);
-		} catch (e) {
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
+		} catch (e: any) {
 			console.log(e);
+
+			if (e?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: e?.meta?.cause,
+					}),
+				);
+			}
+
 			return next(
 				new CustomError({
 					code: ErrorCodes.CrudError,
@@ -1036,7 +1089,7 @@ export class SettingsController {
 		const { hasUser, hasPlan, hasSub } = req.query;
 
 		try {
-			const settings = await settingsServices.findTransaction({
+			const settings = await this.settingsServices.findTransaction({
 				where: { id: Number(id) },
 				include: {
 					user: hasUser ? { select: this.userSelect } : false,
@@ -1046,7 +1099,7 @@ export class SettingsController {
 			});
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
@@ -1078,7 +1131,7 @@ export class SettingsController {
 		const { hasUser, hasPlan, hasSub } = req.query;
 
 		try {
-			const settings = await settingsServices.getTransactions({
+			const settings = await this.settingsServices.getTransactions({
 				where: { userId },
 				include: {
 					user: hasUser ? { select: this.userSelect } : false,
@@ -1088,13 +1141,13 @@ export class SettingsController {
 			});
 
 			if (settings) {
-				return res.status(StatusCodes.OK).json(settings);
+				return res.status(StatusCodes.OK).json(returnVal(settings));
 			} else {
 				return next(
 					new CustomError({
 						code: ErrorCodes.NotFound,
 						status: StatusCodes.NOT_FOUND,
-						description: "Subscription not found.",
+						description: "Transaction not found.",
 					}),
 				);
 			}
@@ -1115,7 +1168,7 @@ export class SettingsController {
 		const { id } = req.params;
 
 		try {
-			await settingsServices.deleteTransaction({ where: { id: Number(id) } });
+			await this.settingsServices.deleteTransaction({ where: { id: Number(id) } });
 
 			return res.status(StatusCodes.NO_CONTENT).json();
 		} catch (e: any) {
@@ -1129,6 +1182,537 @@ export class SettingsController {
 				);
 			}
 
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public upsertDigitalPayment = async (
+		req: Request<{}, {}, DigitalPaymentCreateDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] upsertDigitalPayment");
+		const body = req.body;
+		const { userId } = req;
+
+		try {
+			const settings = await this.settingsServices.upsertDigitalPayment({
+				create: { ...body, user: { connect: { id: userId } } },
+				update: body,
+				where: { userId },
+			});
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public findMyDigitalPaymentInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] findMyDigitalPaymentInfo");
+		const { userId } = req;
+
+		try {
+			const settings = await this.settingsServices.findDigitalPayment({ where: { userId } });
+
+			if (settings) {
+				return res.status(StatusCodes.OK).json(returnVal(settings));
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.NotFound,
+						status: StatusCodes.NOT_FOUND,
+						description: "Digital payment not found.",
+					}),
+				);
+			}
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public findDigitalPaymentInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] findDigitalPaymentInfo");
+		const { id } = req.params;
+
+		try {
+			const settings = await this.settingsServices.findDigitalPayment({ where: { id: Number(id) } });
+
+			if (settings) {
+				return res.status(StatusCodes.OK).json(returnVal(settings));
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.NotFound,
+						status: StatusCodes.NOT_FOUND,
+						description: "Digital payment not found.",
+					}),
+				);
+			}
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public deleteMyDigitalPaymentInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] deleteMyDigitalPaymentInfo");
+		const { userId } = req;
+
+		try {
+			await this.settingsServices.deleteDigitalPayment({ where: { userId } });
+
+			return res.status(StatusCodes.NO_CONTENT).json();
+		} catch (e: any) {
+			if (e?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: e?.meta?.cause,
+					}),
+				);
+			}
+
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public deleteDigitalPaymentInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] deleteDigitalPaymentInfo");
+		const { id } = req.params;
+
+		try {
+			await this.settingsServices.deleteDigitalPayment({ where: { id: Number(id) } });
+
+			return res.status(StatusCodes.NO_CONTENT).json();
+		} catch (e: any) {
+			if (e?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: e?.meta?.cause,
+					}),
+				);
+			}
+
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public upsertFullPotential = async (
+		req: Request<{}, {}, FullPotentialDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] upsertFullPotential");
+		const body = req.body;
+		const { userId } = req;
+
+		try {
+			const settings = await this.settingsServices.upsertFullPotential({
+				create: { ...body, user: { connect: { id: userId } } },
+				update: body,
+				where: { userId },
+			});
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public findMyFullPotentialInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] findMyFullPotentialInfo");
+		const { userId } = req;
+
+		try {
+			const settings = await this.settingsServices.findFullPotential({ where: { userId } });
+
+			if (settings) {
+				return res.status(StatusCodes.OK).json(returnVal(settings));
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.NotFound,
+						status: StatusCodes.NOT_FOUND,
+						description: "Full potential not found.",
+					}),
+				);
+			}
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public findFullPotentialInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] findFullPotentialInfo");
+		const { id } = req.params;
+
+		try {
+			const settings = await this.settingsServices.findFullPotential({ where: { id: Number(id) } });
+
+			if (settings) {
+				return res.status(StatusCodes.OK).json(returnVal(settings));
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.NotFound,
+						status: StatusCodes.NOT_FOUND,
+						description: "Full potential not found.",
+					}),
+				);
+			}
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public deleteMyFullPotentialInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] deleteMyFullPotentialInfo");
+		const { userId } = req;
+
+		try {
+			await this.settingsServices.deleteFullPotential({ where: { userId } });
+
+			return res.status(StatusCodes.NO_CONTENT).json();
+		} catch (e: any) {
+			if (e?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: e?.meta?.cause,
+					}),
+				);
+			}
+
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public deleteFullPotentialInfo = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] deleteFullPotentialInfo");
+		const { id } = req.params;
+
+		try {
+			await this.settingsServices.deleteFullPotential({ where: { id: Number(id) } });
+
+			return res.status(StatusCodes.NO_CONTENT).json();
+		} catch (e: any) {
+			if (e?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: e?.meta?.cause,
+					}),
+				);
+			}
+
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public upsertCompletePercentage = async (
+		req: Request<{}, {}, CompletePercentageDto>,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] upsertCompletePercentage");
+		const body = req.body;
+		const { userId } = req;
+
+		try {
+			const settings = await this.settingsServices.upsertCompletePercentage({
+				create: { ...body, user: { connect: { id: userId } } },
+				update: body,
+				where: { userId },
+			});
+			return res.status(StatusCodes.CREATED).json(returnVal(settings));
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public findMyCompletePercentage = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] findMyCompletePercentage");
+		const { userId } = req;
+
+		try {
+			const settings = await this.settingsServices.findCompletePercentage({ where: { userId } });
+
+			if (settings) {
+				return res.status(StatusCodes.OK).json(returnVal(settings));
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.NotFound,
+						status: StatusCodes.NOT_FOUND,
+						description: "Complete percentage not found.",
+					}),
+				);
+			}
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public findCompletePercentage = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] findCompletePercentage");
+		const { id } = req.params;
+
+		try {
+			const settings = await this.settingsServices.findCompletePercentage({ where: { id: Number(id) } });
+
+			if (settings) {
+				return res.status(StatusCodes.OK).json(returnVal(settings));
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.NotFound,
+						status: StatusCodes.NOT_FOUND,
+						description: "Complete percentage not found.",
+					}),
+				);
+			}
+		} catch (e) {
+			console.log(e);
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public deleteMyCompletePercentage = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] deleteMyCompletePercentage");
+		const { userId } = req;
+
+		try {
+			await this.settingsServices.deleteCompletePercentage({ where: { userId } });
+
+			return res.status(StatusCodes.NO_CONTENT).json();
+		} catch (e: any) {
+			if (e?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: e?.meta?.cause,
+					}),
+				);
+			}
+
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public deleteCompletePercentage = async (
+		req: Request,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] deleteCompletePercentage");
+		const { id } = req.params;
+
+		try {
+			await this.settingsServices.deleteCompletePercentage({ where: { id: Number(id) } });
+
+			return res.status(StatusCodes.NO_CONTENT).json();
+		} catch (e: any) {
+			if (e?.code === "P2025") {
+				return next(
+					new CustomError({
+						code: ErrorCodes.CrudError,
+						status: StatusCodes.NOT_FOUND,
+						description: e?.meta?.cause,
+					}),
+				);
+			}
+
+			return next(
+				new CustomError({
+					code: ErrorCodes.CrudError,
+					status: StatusCodes.INTERNAL_SERVER_ERROR,
+					description: "Something went wrong.",
+				}),
+			);
+		}
+	};
+
+	public resolveSharing = async (
+		req: Request<{ subdomain: string }>,
+		res: Response,
+		next: NextFunction,
+	): Promise<Response | void> => {
+		log.info("[controller] resolveSharing");
+
+		const { subdomain } = req.params;
+
+		try {
+			if (subdomain) {
+				const settings = await this.settingsServices.findBusinessInfo({
+					where: { link: subdomain },
+					include: {
+						user: { select: { ...this.userSelect, plans: true } },
+					},
+				});
+				if (settings) {
+					return res.status(StatusCodes.OK).json(returnVal(settings));
+				} else {
+					return res
+						.status(StatusCodes.NOT_FOUND)
+						.json(returnVal({ message: `Subdomain "${subdomain}" does not exist` }));
+				}
+			} else {
+				return next(
+					new CustomError({
+						code: ErrorCodes.ValidationError,
+						status: StatusCodes.BAD_REQUEST,
+						description: "No subdomain provided.",
+					}),
+				);
+			}
+		} catch (e) {
+			console.log(e);
 			return next(
 				new CustomError({
 					code: ErrorCodes.CrudError,

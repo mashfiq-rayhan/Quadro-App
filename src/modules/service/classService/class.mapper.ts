@@ -47,7 +47,7 @@ function toClassOutput(classData: ClassDocument): ClassOutput {
 			days: classRepeatToOutputMapper(classData.repeat),
 		},
 		paymentType: classData.service.paymentType,
-		serviceType: ServiceType[classData.service.paymentType],
+		serviceType: ServiceType[classData.service.serviceType],
 		businessId: classData.service.businessId,
 		createdAt: classData.createdAt,
 		updatedAt: classData.updatedAt,

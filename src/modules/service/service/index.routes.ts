@@ -3,6 +3,6 @@ import requireUserHandler from "@src/middlewares/requireUserHandler";
 import serviceController from "./service.controllers";
 const serviceRouter: Router = Router();
 
-serviceRouter.get("/:id", [requireUserHandler], serviceController.getServiceById);
+serviceRouter.get("/:id", serviceController.getServiceById);
 
 export default serviceRouter;

@@ -13,7 +13,7 @@ class SettingsRouter {
 	}
 
 	public routes = (): void => {
-		this.router.get("/health", (_, res) => res.status(StatusCodes.OK).send("Auth router OK"));
+		this.router.get("/health", (_, res) => res.status(StatusCodes.OK).send("Settings router OK"));
 
 		this.router.post("/bank-account/upsert", [requireUserHandler], this.settingsController.createBankAccount);
 
@@ -34,6 +34,8 @@ class SettingsRouter {
 		this.router.delete("/bank-account/:id", this.settingsController.deleteBankAccount);
 
 		this.router.post("/business-info/upsert", [requireUserHandler], this.settingsController.createBusinessInfo);
+
+		this.router.get("/business-info/check-link", this.settingsController.checkServiceLink);
 
 		this.router.get("/business-info/my-business", [requireUserHandler], this.settingsController.findMyBusinessInfo);
 
@@ -130,6 +132,68 @@ class SettingsRouter {
 		this.router.get("/transaction/:id", this.settingsController.findTransaction);
 
 		this.router.delete("/transaction/:id", this.settingsController.deleteTransaction);
+
+		this.router.post("/digital-payment", [requireUserHandler], this.settingsController.upsertDigitalPayment);
+
+		this.router.put("/digital-payment/my", [requireUserHandler], this.settingsController.upsertDigitalPayment);
+
+		this.router.get("/digital-payment/my", [requireUserHandler], this.settingsController.findMyDigitalPaymentInfo);
+
+		this.router.get("/digital-payment/:id", this.settingsController.findDigitalPaymentInfo);
+
+		this.router.delete(
+			"/digital-payment/my",
+			[requireUserHandler],
+			this.settingsController.deleteDigitalPaymentInfo,
+		);
+
+		this.router.delete("/digital-payment/:id", this.settingsController.deleteDigitalPaymentInfo);
+
+		this.router.post("/full-potential", [requireUserHandler], this.settingsController.upsertFullPotential);
+
+		this.router.put("/full-potential/my", [requireUserHandler], this.settingsController.upsertFullPotential);
+
+		this.router.get("/full-potential/my", [requireUserHandler], this.settingsController.findMyFullPotentialInfo);
+
+		this.router.get("/full-potential/:id", this.settingsController.findFullPotentialInfo);
+
+		this.router.delete(
+			"/full-potential/my",
+			[requireUserHandler],
+			this.settingsController.deleteMyFullPotentialInfo,
+		);
+
+		this.router.delete("/full-potential/:id", this.settingsController.deleteFullPotentialInfo);
+
+		this.router.post(
+			"/complete-percentage",
+			[requireUserHandler],
+			this.settingsController.upsertCompletePercentage,
+		);
+
+		this.router.put(
+			"/complete-percentage/my",
+			[requireUserHandler],
+			this.settingsController.upsertCompletePercentage,
+		);
+
+		this.router.get(
+			"/complete-percentage/my",
+			[requireUserHandler],
+			this.settingsController.findMyCompletePercentage,
+		);
+
+		this.router.get("/complete-percentage/:id", this.settingsController.findCompletePercentage);
+
+		this.router.delete(
+			"/complete-percentage/my",
+			[requireUserHandler],
+			this.settingsController.deleteMyCompletePercentage,
+		);
+
+		this.router.delete("/complete-percentage/:id", this.settingsController.deleteCompletePercentage);
+
+		this.router.get("/sharing/:subdomain", this.settingsController.resolveSharing);
 	};
 }
 

@@ -10,4 +10,9 @@ export default {
 	google_client_id: process.env.GOOGLE_CLIENT_ID,
 	google_client_secret: process.env.GOOGLE_CLIENT_SECRET,
 	google_callback_url: process.env.GOOGLE_CALLBACK_URL,
+	aws_access_id: process.env.AWS_ACCESS_KEY_ID,
+	aws_access_secret: process.env.AWS_SECRET_ACCESS_KEY,
+	aws_default_region: process.env.AWS_DEFAULT_REGION,
+	aws_bucket: process.env.AWS_BUCKET,
+	aws_endpoint: process.env.AWS_ENDPOINT,
 };

@@ -7,6 +7,8 @@ import compression from "compression";
 import helmet from "helmet";
 import hpp from "hpp";
 import cookieParser from "cookie-parser";
+import bodyParser from "body-parser";
+import boolParser from "express-query-boolean";
 import config from "config";
 import passport from "passport";
 import { StatusCodes } from "http-status-codes";
@@ -58,6 +60,8 @@ class App {
 
 	private initializeMiddlewares = (): void => {
 		this.app.use(express.json());
+		this.app.use(bodyParser.json());
+		this.app.use(boolParser());
 		this.app.use(express.urlencoded({ extended: false }));
 		// Enable CORS
 		this.app.use(

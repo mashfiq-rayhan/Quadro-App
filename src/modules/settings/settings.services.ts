@@ -142,6 +142,78 @@ export class SettingsServices {
 	public deleteTransaction = async (args: Prisma.TransactionDeleteArgs) => {
 		return await prisma.transaction.delete(args);
 	};
+
+	public createDigitalPayment = async (data: Prisma.DigitalPaymentCreateArgs) => {
+		return await prisma.digitalPayment.create(data);
+	};
+
+	public updateDigitalPayment = async (data: Prisma.DigitalPaymentUpdateArgs) => {
+		return await prisma.digitalPayment.update(data);
+	};
+
+	public upsertDigitalPayment = async (data: Prisma.DigitalPaymentUpsertArgs) => {
+		return await prisma.digitalPayment.upsert(data);
+	};
+
+	public getDigitalPayment = async (filter: Prisma.DigitalPaymentFindManyArgs) => {
+		return await prisma.digitalPayment.findMany(filter);
+	};
+
+	public findDigitalPayment = async (filter: Prisma.DigitalPaymentFindFirstArgs) => {
+		return await prisma.digitalPayment.findFirst(filter);
+	};
+
+	public deleteDigitalPayment = async (args: Prisma.DigitalPaymentDeleteArgs) => {
+		return await prisma.digitalPayment.delete(args);
+	};
+
+	public createFullPotential = async (data: Prisma.FullPotentialCreateArgs) => {
+		return await prisma.fullPotential.create(data);
+	};
+
+	public updateFullPotential = async (data: Prisma.FullPotentialUpdateArgs) => {
+		return await prisma.fullPotential.update(data);
+	};
+
+	public upsertFullPotential = async (data: Prisma.FullPotentialUpsertArgs) => {
+		return await prisma.fullPotential.upsert(data);
+	};
+
+	public getFullPotential = async (filter: Prisma.FullPotentialFindManyArgs) => {
+		return await prisma.fullPotential.findMany(filter);
+	};
+
+	public findFullPotential = async (filter: Prisma.FullPotentialFindFirstArgs) => {
+		return await prisma.fullPotential.findFirst(filter);
+	};
+
+	public deleteFullPotential = async (args: Prisma.FullPotentialDeleteArgs) => {
+		return await prisma.fullPotential.delete(args);
+	};
+
+	public createCompletePercentage = async (data: Prisma.CompletePercentageCreateArgs) => {
+		return await prisma.completePercentage.create(data);
+	};
+
+	public updateCompletePercentage = async (data: Prisma.CompletePercentageUpdateArgs) => {
+		return await prisma.completePercentage.update(data);
+	};
+
+	public upsertCompletePercentage = async (data: Prisma.CompletePercentageUpsertArgs) => {
+		return await prisma.completePercentage.upsert(data);
+	};
+
+	public getCompletePercentage = async (filter: Prisma.CompletePercentageFindManyArgs) => {
+		return await prisma.completePercentage.findMany(filter);
+	};
+
+	public findCompletePercentage = async (filter: Prisma.CompletePercentageFindFirstArgs) => {
+		return await prisma.completePercentage.findFirst(filter);
+	};
+
+	public deleteCompletePercentage = async (args: Prisma.CompletePercentageDeleteArgs) => {
+		return await prisma.completePercentage.delete(args);
+	};
 }
 
 const settingsServices: SettingsServices = new SettingsServices();
