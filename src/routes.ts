@@ -10,6 +10,7 @@ import clientRouter from "./modules/client/client.routes";
 import calendarRouter from "./modules/calendar/calendar.routes";
 import fileRouter from "./modules/file/file.routes";
 import servicesRouter from "./modules/service/service.routes";
+import orderRouter from "./modules/orders/order.routes";
 class RootRoutes {
 	public router: Router;
 
@@ -40,6 +41,7 @@ class RootRoutes {
 		this.router.use(`${apiVersion}/calendar`, calendarRouter);
 		this.router.use(`${apiVersion}/files`, fileRouter);
 		this.router.use(`${apiVersion}/services`, servicesRouter);
+		this.router.use(`${apiVersion}/orders`, orderRouter);
 		// Catch all unmatched routes
 		this.router.all("*", (_, res) => res.status(StatusCodes.NOT_FOUND).send("Route not found"));
 	}

@@ -7,7 +7,7 @@ import * as bookingMapper from "./booking.mapper";
 import { Booking } from ".prisma/client";
 
 export async function createBooking(payload: BookingDto): Promise<BookingOutput> {
-	const targetService = await servicesService.getServiceByTypeId(payload.serviceId);
+	const targetService = await servicesService.getServiceByType(payload.serviceId, payload.serviceType);
 	payload.serviceId = targetService.id;
 	payload.bookingType = targetService.serviceType;
 	const newBooking = await bookingDal.create(bookingMapper.toBookingInput(payload));

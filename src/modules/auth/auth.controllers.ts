@@ -162,8 +162,6 @@ export class AuthController {
 		next: NextFunction,
 	): Promise<Response | void | CustomError> => {
 		const { userId } = req;
-		console.log({ userId });
-
 		try {
 			if (userId) {
 				const user = await this.userServices.findOne({
@@ -182,7 +180,6 @@ export class AuthController {
 						updatedAt: true,
 					},
 				});
-				console.log({ user });
 				if (user) return res.status(200).send(returnVal(user));
 				else
 					return next(

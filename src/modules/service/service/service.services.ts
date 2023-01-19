@@ -7,7 +7,14 @@ export async function getServiceByTypeId(payload: number): Promise<ServiceDocume
 	return targerService;
 }
 
+export async function getServiceByType(payload: number, type: string): Promise<ServiceDocument> {
+	const targerService = await serviceDal.getServiceByType(payload, type);
+	targerService.queryId = payload;
+	return targerService;
+}
+
 const servicesService = {
 	getServiceByTypeId,
+	getServiceByType,
 };
 export default servicesService;

@@ -18,4 +18,5 @@ export interface BookingDto extends CreateBookingDto {
 	location: string;
 	bookingType: string;
 	bookingTime: string;
+	serviceType: string;
 }
