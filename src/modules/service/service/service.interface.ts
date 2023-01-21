@@ -1,7 +1,9 @@
 import { CreateServiceDto } from "./service.schema";
 import { Service, BusinessInfoSetting, ServiceType, PaymentType, Class, Appointment } from "@prisma/client";
 
-export interface ServiceInput extends Omit<Service, "id"> {}
+export interface ServiceInput extends Omit<Service, "id"> {
+	image: Array<string>;
+}
 
 export interface ServiceDto extends CreateServiceDto {
 	description?: string;

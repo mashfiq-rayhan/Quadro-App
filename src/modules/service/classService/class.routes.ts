@@ -15,7 +15,7 @@ classRouter.get("/info", (_, res) =>
 			info: ` ------ Response object structure will be same as Request object `,
 			expectedRequestObject: {
 				name: "string",
-				location: `string (optional) default : empty string `,
+				location: `enum default : empty BUSINESS |  accepted values : [ CLIENT ,BUSINESS, ONLINE ] `,
 				description: `string (optional) default : empty string `,
 				price: "number",
 				maxNumberOfParticipants: "number",
@@ -29,6 +29,7 @@ classRouter.get("/info", (_, res) =>
 				},
 			},
 			daysExample: ["monday", "tuesday", "wednesday", "thursday", "friday", "saturday", "sunday"],
+			images: ` array of string(url) optional `,
 		},
 	}),
 );

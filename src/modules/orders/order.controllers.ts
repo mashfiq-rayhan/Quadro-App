@@ -6,6 +6,7 @@ import handleError from "@src/errors/handleError";
 import dayjs from "dayjs";
 import { Request, Response } from "express";
 import { StatusCodes } from "http-status-codes";
+import { getBusiness } from "../service/common/business.services";
 
 import { OrderDocument, OrderDto } from "./order.interface";
 import { OrderParamsDto, OrderQueryDto } from "./order.schema";
@@ -116,11 +117,16 @@ async function handelGetAllByClient(request: Request<OrderParamsDto, {}, {}>, re
 
 async function handelAnalytics(request: Request, response: Response): Promise<Response> {
 	try {
+		const businessInfo = await getBusiness(request.userId);
 		const firstDayay = dayjs(`${request.query.year}-${request.query.month}-1`);
 		const lastDay = dayjs(firstDayay).endOf("M");
 		return response
 			.status(StatusCodes.OK)
-			.json(handleResponse(await orderService.getOrderAnalytics(firstDayay.toString(), lastDay.toString())));
+			.json(
+				handleResponse(
+					await orderService.getOrderAnalytics(firstDayay.toString(), lastDay.toString(), businessInfo.id),
+				),
+			);
 	} catch (error: any) {
 		return handleError(response, error);
 	}

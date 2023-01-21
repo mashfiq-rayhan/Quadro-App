@@ -163,14 +163,7 @@ async function deleteOrder(id: number, userId: number): Promise<void> {
 async function getAllByUsersClient(clientId: number, userId: number): Promise<Array<OrderDocument>> {
 	const data = await prisma.order.findMany({
 		where: {
-			AND: [
-				{ clientId },
-				{
-					business: {
-						userId,
-					},
-				},
-			],
+			clientId,
 		},
 		include: {
 			booking: {
@@ -187,7 +180,7 @@ async function getAllByUsersClient(clientId: number, userId: number): Promise<Ar
 	return data;
 }
 
-async function orderAnalytics(startDate: string, endDate: string): Promise<Array<OrderDocument>> {
+async function orderAnalytics(startDate: string, endDate: string, belongsTo: number): Promise<Array<OrderDocument>> {
 	const tottalRevenue = await prisma.order.findMany({
 		where: {
 			AND: [
@@ -196,6 +189,9 @@ async function orderAnalytics(startDate: string, endDate: string): Promise<Array
 						lte: endDate,
 						gt: startDate,
 					},
+				},
+				{
+					businessId: belongsTo,
 				},
 			],
 		},

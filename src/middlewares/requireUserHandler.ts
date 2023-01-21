@@ -11,7 +11,9 @@ import { StatusCodes } from "http-status-codes";
  */
 const requireUserHandler = (req: Request, res: Response, next: NextFunction): void => {
 	const { userId } = req;
-
+	console.log({
+		userId,
+	});
 	if (!userId) {
 		return next(
 			new CustomError({

@@ -1,5 +1,5 @@
 import { CreateClassDto } from "./class.schema";
-import { Class, Service, ClassRepeat, BusinessInfoSetting } from "@prisma/client";
+import { Class, Service, ClassRepeat, BusinessInfoSetting, LocationTypes, ImageOnService, Image } from "@prisma/client";
 import { ServiceInput } from "@src/modules/service/service/service.interface";
 
 // TODO change basic info to serviceId
@@ -17,7 +17,9 @@ export interface ClassRepeatDocument extends Required<ClassRepeatInput> {
 	readonly createdAt: Date;
 	readonly updatedAt: Date;
 }
-
+interface Images extends ImageOnService {
+	image: Image;
+}
 export interface ClassInput
 	extends Omit<Class, "id" | "createdAt" | "updatedAt" | "serviceId" | "repeatId" | "service"> {
 	service: ServiceInput;
@@ -25,25 +27,29 @@ export interface ClassInput
 }
 
 export type ClassDocument = Class & {
-	service: Service;
+	service: Service & {
+		images: Array<Images>;
+	};
 	repeat: ClassRepeat;
 };
 
-export interface ClassDto extends CreateClassDto {
+export interface ClassDto extends Omit<CreateClassDto, "location"> {
 	startDateAndTime: Date;
 	repeat: ClassRepeatDto;
 	endDate: Date;
 	duration: number;
 	description?: string;
 	published?: boolean;
+	location: LocationTypes;
+	images: Array<string>;
 }
 
 export interface ClassServiceDto extends ClassDto {
 	businessId: BusinessInfoSetting["id"];
+	images: Array<string>;
 }
 
-export interface ClassOutput
-	extends Omit<ClassDocument, "service" | "repeat" | "serviceId" | "repeatId">,
-		Omit<Service, "id"> {
+export interface ClassOutput extends Omit<ClassDocument, "service" | "repeat" | "repeatId">, Omit<Service, "id"> {
 	repeat: ClassRepeatDto;
+	images: Array<Images>;
 }

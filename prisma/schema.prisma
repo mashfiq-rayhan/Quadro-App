@@ -1,20 +1,20 @@
 generator client {
-    provider = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
-    provider = "mysql"
-    url      = env("DATABASE_URL")
+  provider = "mysql"
+  url      = env("DATABASE_URL")
 }
 
 enum SubscriptionType {
-    FOREVER
-    HOURLY
-    DAILY
-    WEEKLY
-    BIWEEKLY
-    MONTHLY
-    YEARLY
+  FOREVER
+  HOURLY
+  DAILY
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+  YEARLY
 }
 
 // enum PaymentStatus {
@@ -25,482 +25,492 @@ enum SubscriptionType {
 // }
 
 enum PaymentOptions {
-    RECURRING
-    ONETIME
-    FREE
+  RECURRING
+  ONETIME
+  FREE
 }
 
 enum OfferType {
-    MEMBERSHIP
-    PACKAGE
+  MEMBERSHIP
+  PACKAGE
+}
+
+enum LocationTypes {
+  CLIENT
+  BUSINESS
+  ONLINE
 }
 
 model User {
-    id                      Int                      @id @default(autoincrement())
-    email                   String                   @unique
-    name                    String?                  @db.VarChar(255)
-    phone                   String?
-    password                String?
-    verificationCode        String?
-    passwordResetCode       String?
-    verified                Boolean                  @default(false)
-    method                  String?
-    googleId                String?
-    profilePicture          String?                  @db.VarChar(1000)
-    createdAt               DateTime                 @default(now())
-    updatedAt               DateTime                 @updatedAt
-    utm_campaign            String?
-    utm_source              String?
-    utm_medium              String?
-    utm_content             String?
-    session                 Session?
-    ProtectionSetting       ProtectionSetting?
-    AutomaticChargesSetting AutomaticChargesSetting?
-    BusinessInfoSetting     BusinessInfoSetting?
-    Subscription            Subscription?
-    DigitalPayment          DigitalPayment?
-    BankAccount             BankAccount?
-    Transactions            Transaction[]
-    FullPotential           FullPotential?
-    order                   Order[]
-    plans                   Plan[]
-    ServicesOnPlans         ServicesOnPlans[]
-    clients                 Client[]
-    serviceId               Int?
-    calandar                Calendar[]
-    percentages             CompletePercentage?
+  id                      Int                      @id @default(autoincrement())
+  email                   String                   @unique
+  name                    String?                  @db.VarChar(255)
+  phone                   String?
+  password                String?
+  verificationCode        String?
+  passwordResetCode       String?
+  verified                Boolean                  @default(false)
+  method                  String?
+  googleId                String?
+  profilePicture          String?                  @db.VarChar(1000)
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  utm_campaign            String?
+  utm_source              String?
+  utm_medium              String?
+  utm_content             String?
+  session                 Session?
+  ProtectionSetting       ProtectionSetting?
+  AutomaticChargesSetting AutomaticChargesSetting?
+  BusinessInfoSetting     BusinessInfoSetting?
+  Subscription            Subscription?
+  DigitalPayment          DigitalPayment?
+  BankAccount             BankAccount?
+  Transactions            Transaction[]
+  FullPotential           FullPotential?
+  order                   Order[]
+  plans                   Plan[]
+  ServicesOnPlans         ServicesOnPlans[]
+  clients                 Client[]
+  serviceId               Int?
+  calandar                Calendar[]
+  percentages             CompletePercentage?
 
-    @@map(name: "users")
+  @@map(name: "users")
 }
 
 model Session {
-    id        Int      @id @default(autoincrement())
-    valid     Boolean  @default(true)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    user      User     @relation(fields: [userId], references: [id])
-    userId    Int      @unique
+  id        Int      @id @default(autoincrement())
+  valid     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
 
-    @@map(name: "sessions")
+  @@map(name: "sessions")
 }
 
 model Appointment {
-  id                Int      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  duration          Int
-  published         Boolean  @default(false)
-  depositAmount     Float?   @default(0)
+  duration      Int
+  published     Boolean @default(false)
+  depositAmount Float?  @default(0)
 
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  service           Service  @relation(fields: [serviceId], references: [id])
-  serviceId         Int  	 @unique
-  Calendar          Calendar[]
+  service   Service    @relation(fields: [serviceId], references: [id])
+  serviceId Int        @unique
+  Calendar  Calendar[]
+
   @@map("appointments")
 }
 
 enum ServiceType {
-	APPOINTMENT
-	CLASS
+  APPOINTMENT
+  CLASS
 }
 
 enum PaymentType {
-	IN_PERSON
-	ONLINE
-}
-
-model ServicePicture {
-    id          Int             @id @default(autoincrement())
-    imageURL    String?         @db.VarChar(1000)
-    service     Service  		@relation(fields: [serviceId], references: [id])
-    serviceId   Int
-
-    @@map("servicePictures")
+  IN_PERSON
+  ONLINE
 }
 
 enum ServiceLocation {
-    AT_CLIENT_ADDRESS
-    AT_BUSINESS_ADDRESS
-    TO_BE_DETERMINED
+  AT_CLIENT_ADDRESS
+  AT_BUSINESS_ADDRESS
+  TO_BE_DETERMINED
 }
 
 model Block {
-    id        String     @id @unique @default(uuid())
-    startDate DateTime?
-    endDate   DateTime?
-    notes     String?
-    createdAt DateTime   @default(now())
-    updatedAt DateTime   @updatedAt
-    Calendar  Calendar[]
+  id        String     @id @unique @default(uuid())
+  startDate DateTime?
+  endDate   DateTime?
+  notes     String?
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+  Calendar  Calendar[]
 
-    @@map("blocks")
+  @@map("blocks")
 }
 
 model Service {
-  	id             Int                     @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  	name           String
-  	description    String?
-  	location       String?     @default("TO_BE_DETERMINED")
-  	price          Float
-	paymentType    PaymentType			@default(IN_PERSON)
-	serviceType    ServiceType
+  name        String
+  description String?
+  location    LocationTypes? @default(BUSINESS)
+  price       Float
+  paymentType PaymentType    @default(IN_PERSON)
+  serviceType ServiceType
 
-  	business	   BusinessInfoSetting  @relation(fields: [businessId],references: [id])
-  	businessId	   Int
+  business   BusinessInfoSetting @relation(fields: [businessId], references: [id])
+  businessId Int
 
-  	appointment Appointment?
-  	class		Class?
-	plans       ServicesOnPlans[]
-    images      ServicePicture[]
-  	booking		Booking[]
+  appointment Appointment?
+  class       Class?
+  plans       ServicesOnPlans[]
+  images      ImageOnService[]
+  booking     Booking[]
 
-  	@@map("services")
+  @@map("services")
+}
+
+model ImageOnService {
+  service   Service @relation(fields: [serviceId], references: [id])
+  serviceId Int
+  image     Image   @relation(fields: [imageId], references: [id])
+  imageId   Int
+
+  @@id([serviceId, imageId])
+}
+
+model Image {
+  id       Int              @id @default(autoincrement())
+  image    String?          @db.VarChar(1000)
+  services ImageOnService[]
 }
 
 model ClassRepeat {
-  	id          Int                      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-	week 		Int
-	monday 		Boolean  @default(false)
-	tuesday 	Boolean  @default(false)
-	wednesday 	Boolean  @default(false)
-	thursday 	Boolean  @default(false)
-	friday 		Boolean  @default(false)
-	saturday 	Boolean  @default(false)
-	sunday 		Boolean  @default(false)
+  week      Int
+  monday    Boolean @default(false)
+  tuesday   Boolean @default(false)
+  wednesday Boolean @default(false)
+  thursday  Boolean @default(false)
+  friday    Boolean @default(false)
+  saturday  Boolean @default(false)
+  sunday    Boolean @default(false)
 
-	class		Class?
+  class Class?
 
-    @@map("class_repeats")
+  @@map("class_repeats")
 }
 
 model Class {
-  id                		Int                      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-  maxNumberOfParticipants	Int
-  duration          		Int?
-  published         		Boolean?  	@default(false)
-  startDateAndTime         	DateTime?
-  endDate         			DateTime?
+  maxNumberOfParticipants Int
+  duration                Int?
+  published               Boolean?  @default(false)
+  startDateAndTime        DateTime?
+  endDate                 DateTime?
 
-  createdAt         		DateTime? 	@default(now())
-  updatedAt         		DateTime? 	@updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
-  service           		Service  	@relation(fields: [serviceId], references: [id])
-  serviceId         		Int   		@unique
+  service   Service @relation(fields: [serviceId], references: [id])
+  serviceId Int     @unique
 
-  repeat           			ClassRepeat @relation(fields: [repeatId], references: [id])
-  repeatId         			Int  		@unique
-  Calendar                  Calendar[]
+  repeat   ClassRepeat @relation(fields: [repeatId], references: [id])
+  repeatId Int         @unique
+  Calendar Calendar[]
+
   @@map("classes")
 }
 
 model Booking {
-	id                		Int                      @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-	bookingTime		        DateTime?
+  bookingTime DateTime?
 
-	service           		Service		@relation(fields: [serviceId], references: [id])
-  	serviceId         		Int
+  service   Service @relation(fields: [serviceId], references: [id])
+  serviceId Int
 
-	bookingType				ServiceType
-	location				String?		@default("")
-	note					String?		@default("")
-	active					Boolean		@default(true)
+  bookingType ServiceType
+  location    String?     @default("")
+  note        String?     @default("")
+  active      Boolean     @default(true)
 
-  	createdAt         		DateTime? 	@default(now())
- 	updatedAt         		DateTime? 	@updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
-	order 					Order?
+  order Order?
 
-  	@@map("bookings")
+  @@map("bookings")
 }
 
 enum PaymentStatus {
-	PAID
-	UNPAID
-	CANCELED
-	REFUNDED
+  PAID
+  UNPAID
+  CANCELED
+  REFUNDED
 }
-
 
 model Order {
-	id            Int                   @id @default(autoincrement())
+  id Int @id @default(autoincrement())
 
-	booking	   	  Booking 				@relation(fields: [bookingId], references: [id])
-  	bookingId     Int  					@unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+  bookingId Int     @unique
 
-	paymentStatus PaymentStatus			@default(UNPAID)
+  paymentStatus PaymentStatus @default(UNPAID)
 
-	createdAt	  DateTime? 			@default(now())
- 	updatedAt     DateTime? 			@updatedAt
+  createdAt DateTime? @default(now())
+  updatedAt DateTime? @updatedAt
 
-	client		  User					@relation(fields: [clientId], references: [id])
-	clientId	  Int
+  client   User @relation(fields: [clientId], references: [id])
+  clientId Int
 
-  	business	  BusinessInfoSetting	@relation(fields: [businessId],references: [id])
-  	businessId	  Int
+  business   BusinessInfoSetting @relation(fields: [businessId], references: [id])
+  businessId Int
 
-  	@@map("orders")
+  @@map("orders")
 }
 
-
-
-
 model ProtectionSetting {
-    id             Int      @id @default(autoincrement())
-    activatePolicy Boolean  @default(false)
-    time           String?
-    toleranceDelay String?
-    createdAt      DateTime @default(now())
-    updatedAt      DateTime @updatedAt
-    user           User     @relation(fields: [userId], references: [id])
-    userId         Int      @unique
+  id             Int      @id @default(autoincrement())
+  activatePolicy Boolean  @default(false)
+  time           String?
+  toleranceDelay String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  user           User     @relation(fields: [userId], references: [id])
+  userId         Int      @unique
 
-    @@map(name: "protection_settings")
+  @@map(name: "protection_settings")
 }
 
 model AutomaticChargesSetting {
-    id              Int      @id @default(autoincrement())
-    eachAppointment Boolean  @default(false)
-    eachPlan        Boolean  @default(false)
-    frequency       String?
-    createdAt       DateTime @default(now())
-    updatedAt       DateTime @updatedAt
-    user            User     @relation(fields: [userId], references: [id])
-    userId          Int      @unique
+  id              Int      @id @default(autoincrement())
+  eachAppointment Boolean  @default(false)
+  eachPlan        Boolean  @default(false)
+  frequency       String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  user            User     @relation(fields: [userId], references: [id])
+  userId          Int      @unique
 
-    @@map(name: "automatic_charges_settings")
+  @@map(name: "automatic_charges_settings")
 }
 
 model BusinessInfoSetting {
-    id            Int           @id @default(autoincrement())
-    name          String?       @db.VarChar(255)
-    description   String?
-    link          String?       @unique
-    address       String?
-    phone         String?
-    serviceKind   String?
-    logo          String?
-    openHours     Json?
-    calendar      String?
-    interval      String?
-    availability  String?
-    advanceNotice String?
-    createdAt     DateTime      @default(now())
-    updatedAt     DateTime      @updatedAt
-    user          User          @relation(fields: [userId], references: [id])
-    userId        Int           @unique
-    order         Order[]
-	service		  Service[]
+  id            Int       @id @default(autoincrement())
+  name          String?   @db.VarChar(255)
+  description   String?
+  link          String?   @unique
+  address       String?
+  phone         String?
+  serviceKind   String?
+  logo          String?
+  openHours     Json?
+  calendar      String?
+  interval      String?
+  availability  String?
+  advanceNotice String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  user          User      @relation(fields: [userId], references: [id])
+  userId        Int       @unique
+  order         Order[]
+  service       Service[]
 
-    @@map(name: "business_info_settings")
+  @@map(name: "business_info_settings")
 }
 
 model DigitalPayment {
-    id        Int      @id @default(autoincrement())
-    verify    Boolean  @default(false)
-    pix       Boolean  @default(false)
-    megapay   Boolean  @default(false)
-    payeer    Boolean  @default(false)
-    cash      Boolean  @default(false)
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    user      User     @relation(fields: [userId], references: [id])
-    userId    Int      @unique
+  id        Int      @id @default(autoincrement())
+  verify    Boolean  @default(false)
+  pix       Boolean  @default(false)
+  megapay   Boolean  @default(false)
+  payeer    Boolean  @default(false)
+  cash      Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
 
-    @@map(name: "digital_payments")
+  @@map(name: "digital_payments")
 }
 
 model BankAccount {
-    id               Int      @id @default(autoincrement())
-    beneficiary_name String
-    account_number   String
-    bank_name        String
-    bank_code        String
-    other            String?
-    createdAt        DateTime @default(now())
-    updatedAt        DateTime @updatedAt
-    user             User     @relation(fields: [userId], references: [id])
-    userId           Int      @unique
+  id               Int      @id @default(autoincrement())
+  beneficiary_name String
+  account_number   String
+  bank_name        String
+  bank_code        String
+  other            String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+  user             User     @relation(fields: [userId], references: [id])
+  userId           Int      @unique
 
-    @@map(name: "bank_accounts")
+  @@map(name: "bank_accounts")
 }
 
 model Subscription {
-    id                 Int               @id @default(autoincrement())
-    billingDetails     String?
-    billingAddress     String
-    billingEmail       String
-    isSubscribed       Boolean           @default(false)
-    createdAt          DateTime          @default(now())
-    updatedAt          DateTime          @updatedAt
-    user               User              @relation(fields: [userId], references: [id])
-    userId             Int               @unique
-    subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
-    subscriptionPlanId Int?
-    Transactions       Transaction[]
+  id                 Int               @id @default(autoincrement())
+  billingDetails     String?
+  billingAddress     String
+  billingEmail       String
+  isSubscribed       Boolean           @default(false)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  user               User              @relation(fields: [userId], references: [id])
+  userId             Int               @unique
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlanId Int?
+  Transactions       Transaction[]
 
-    @@map(name: "subscriptions")
+  @@map(name: "subscriptions")
 }
 
 model SubscriptionPlan {
-    id               Int              @id @default(autoincrement())
-    name             String
-    tagLine          String
-    amount           Float
-    discountedAmount Float?
-    subscriptionType SubscriptionType @default(MONTHLY)
-    iconColor        String?
-    isRecommended    Boolean?         @default(false)
-    features         Json?
-    createdAt        DateTime         @default(now())
-    updatedAt        DateTime         @updatedAt
-    Subscriptions    Subscription[]
-    Transactions     Transaction[]
+  id               Int              @id @default(autoincrement())
+  name             String
+  tagLine          String
+  amount           Float
+  discountedAmount Float?
+  subscriptionType SubscriptionType @default(MONTHLY)
+  iconColor        String?
+  isRecommended    Boolean?         @default(false)
+  features         Json?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  Subscriptions    Subscription[]
+  Transactions     Transaction[]
 
-    @@map(name: "subscription_plans")
+  @@map(name: "subscription_plans")
 }
 
 model Transaction {
-    id                 Int               @id @default(autoincrement())
-    amount             Float?
-    createdAt          DateTime          @default(now())
-    updatedAt          DateTime          @updatedAt
-    user               User              @relation(fields: [userId], references: [id])
-    userId             Int
-    subscription       Subscription?     @relation(fields: [subscriptionId], references: [id])
-    subscriptionId     Int?
-    subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
-    subscriptionPlanId Int?
+  id                 Int               @id @default(autoincrement())
+  amount             Float?
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  user               User              @relation(fields: [userId], references: [id])
+  userId             Int
+  subscription       Subscription?     @relation(fields: [subscriptionId], references: [id])
+  subscriptionId     Int?
+  subscriptionPlan   SubscriptionPlan? @relation(fields: [subscriptionPlanId], references: [id])
+  subscriptionPlanId Int?
 
-    @@map(name: "transactions")
+  @@map(name: "transactions")
 }
 
 model FullPotential {
-    id        Int      @id @default(autoincrement())
-    data      Json?
-    createdAt DateTime @default(now())
-    updatedAt DateTime @updatedAt
-    user      User     @relation(fields: [userId], references: [id])
-    userId    Int      @unique
+  id        Int      @id @default(autoincrement())
+  data      Json?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int      @unique
 
-    @@map(name: "full_potentials")
+  @@map(name: "full_potentials")
 }
 
 model CompletePercentage {
-    id                Int      @id @default(autoincrement())
-    schedulingOnline  Boolean? @default(false)
-    increaseCatalogue Boolean? @default(false)
-    digitalPayments   Boolean? @default(false)
-    importCustomers   Boolean? @default(false)
-    protectYourself   Boolean? @default(false)
-    automaticCharges  Boolean? @default(false)
-    createdAt         DateTime @default(now())
-    updatedAt         DateTime @updatedAt
-    user              User     @relation(fields: [userId], references: [id])
-    userId            Int      @unique
+  id                Int      @id @default(autoincrement())
+  schedulingOnline  Boolean? @default(false)
+  increaseCatalogue Boolean? @default(false)
+  digitalPayments   Boolean? @default(false)
+  importCustomers   Boolean? @default(false)
+  protectYourself   Boolean? @default(false)
+  automaticCharges  Boolean? @default(false)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id])
+  userId            Int      @unique
 
-    @@map(name: "complete_percentages")
+  @@map(name: "complete_percentages")
 }
 
 model Plan {
-    id                    Int               @id @default(autoincrement())
-    name                  String
-    description           String?
-    offerType             OfferType         @default(MEMBERSHIP)
-    numberOfSessions      Int               @default(0)
-    paymentOption         PaymentOptions    @default(RECURRING)
-    paymentPeriod         String?
-    paymentLength         Int?
-    price                 Float
-    hasFreeTrial          Boolean?          @default(false)
-    isSinglePurchase      Boolean?          @default(false)
-    willAllowCancellation Boolean?          @default(true)
-    hasCustomStartDate    Boolean?          @default(false)
-    policies              String?
-    createdAt             DateTime          @default(now())
-    updatedAt             DateTime          @updatedAt
-    user                  User              @relation(fields: [userId], references: [id])
-    userId                Int
-    services              ServicesOnPlans[]
-    clients               ClientsOnPlans[]
+  id                    Int               @id @default(autoincrement())
+  name                  String
+  description           String?
+  offerType             OfferType         @default(MEMBERSHIP)
+  numberOfSessions      Int               @default(0)
+  paymentOption         PaymentOptions    @default(RECURRING)
+  paymentPeriod         String?
+  paymentLength         Int?
+  price                 Float
+  hasFreeTrial          Boolean?          @default(false)
+  isSinglePurchase      Boolean?          @default(false)
+  willAllowCancellation Boolean?          @default(true)
+  hasCustomStartDate    Boolean?          @default(false)
+  policies              String?
+  createdAt             DateTime          @default(now())
+  updatedAt             DateTime          @updatedAt
+  user                  User              @relation(fields: [userId], references: [id])
+  userId                Int
+  services              ServicesOnPlans[]
+  clients               ClientsOnPlans[]
 
-    @@map(name: "plans")
+  @@map(name: "plans")
 }
 
 model ServicesOnPlans {
-    service      Service  @relation(fields: [serviceId], references: [id])
-    serviceId    Int
-    plan         Plan     @relation(fields: [planId], references: [id])
-    planId       Int
-    assignedAt   DateTime @default(now())
-    assignedBy   User?    @relation(fields: [assignedById], references: [id])
-    assignedById Int?
+  service      Service  @relation(fields: [serviceId], references: [id])
+  serviceId    Int
+  plan         Plan     @relation(fields: [planId], references: [id])
+  planId       Int
+  assignedAt   DateTime @default(now())
+  assignedBy   User?    @relation(fields: [assignedById], references: [id])
+  assignedById Int?
 
-    @@id([serviceId, planId])
+  @@id([serviceId, planId])
 }
 
 model Client {
-    id           Int                  @id @default(autoincrement())
-    email        String?
-    name         String               @db.VarChar(255)
-    countryCode  String
-    phone        String
-    createdAt    DateTime             @default(now())
-    updatedAt    DateTime             @updatedAt
-    assignedBy   User?                @relation(fields: [assignedById], references: [id])
-    assignedById Int?
-    plans        ClientsOnPlans[]
-    calendars    ClientsOnCalendars[]
+  id           Int                  @id @default(autoincrement())
+  email        String?
+  name         String               @db.VarChar(255)
+  countryCode  String
+  phone        String
+  createdAt    DateTime             @default(now())
+  updatedAt    DateTime             @updatedAt
+  assignedBy   User?                @relation(fields: [assignedById], references: [id])
+  assignedById Int?
+  plans        ClientsOnPlans[]
+  calendars    ClientsOnCalendars[]
 
-    @@map(name: "clients")
+  @@map(name: "clients")
 }
 
 model ClientsOnPlans {
-    client     Client   @relation(fields: [clientId], references: [id])
-    clientId   Int
-    plan       Plan     @relation(fields: [planId], references: [id])
-    planId     Int
-    hasPaid    Boolean? @default(false)
-    assignedAt DateTime @default(now())
+  client     Client   @relation(fields: [clientId], references: [id])
+  clientId   Int
+  plan       Plan     @relation(fields: [planId], references: [id])
+  planId     Int
+  hasPaid    Boolean? @default(false)
+  assignedAt DateTime @default(now())
 
-    @@id([clientId, planId])
+  @@id([clientId, planId])
 }
 
 model Calendar {
-    id            Int                  @id @default(autoincrement())
-    startDate     DateTime?
-    endDate       DateTime?
-    duration      Int?
-    location      String?
-    notes         String?
-    hasCancelled  Boolean?             @default(false)
-    hasRefunded   Boolean?             @default(false)
-    createdAt     DateTime             @default(now())
-    updatedAt     DateTime             @updatedAt
-    user          User?                @relation(fields: [userId], references: [id])
-    userId        Int?
-    appointment   Appointment?         @relation(fields: [appointmentId], references: [id])
-    appointmentId Int?
-    class         Class?               @relation(fields: [classId], references: [id])
-    classId       Int?
-    block         Block?               @relation(fields: [blockId], references: [id])
-    blockId       String?
-    participants  ClientsOnCalendars[]
+  id            Int                  @id @default(autoincrement())
+  startDate     DateTime?
+  endDate       DateTime?
+  duration      Int?
+  location      String?
+  notes         String?
+  hasCancelled  Boolean?             @default(false)
+  hasRefunded   Boolean?             @default(false)
+  createdAt     DateTime             @default(now())
+  updatedAt     DateTime             @updatedAt
+  user          User?                @relation(fields: [userId], references: [id])
+  userId        Int?
+  appointment   Appointment?         @relation(fields: [appointmentId], references: [id])
+  appointmentId Int?
+  class         Class?               @relation(fields: [classId], references: [id])
+  classId       Int?
+  block         Block?               @relation(fields: [blockId], references: [id])
+  blockId       String?
+  participants  ClientsOnCalendars[]
 
-    @@map("calendars")
+  @@map("calendars")
 }
 
 model ClientsOnCalendars {
-    client     Client   @relation(fields: [clientId], references: [id])
-    clientId   Int
-    calendar   Calendar @relation(fields: [calendarId], references: [id])
-    calendarId Int
-    hasPaid    Boolean? @default(false)
-    assignedAt DateTime @default(now())
+  client     Client   @relation(fields: [clientId], references: [id])
+  clientId   Int
+  calendar   Calendar @relation(fields: [calendarId], references: [id])
+  calendarId Int
+  hasPaid    Boolean? @default(false)
+  assignedAt DateTime @default(now())
 
-    @@id([clientId, calendarId])
+  @@id([clientId, calendarId])
 }

@@ -1,4 +1,4 @@
-import { ServiceType } from "@prisma/client";
+import { LocationTypes, ServiceType } from "@prisma/client";
 import { ServiceInput } from "@src/modules/service/service/service.interface";
 
 import { ClassDocument, ClassInput, ClassOutput, ClassRepeatInput, ClassServiceDto } from "./class.interfaces";
@@ -12,11 +12,12 @@ function toClassInput(payload: ClassServiceDto): ClassInput {
 	const serviceInformation: ServiceInput = {
 		name: payload.name,
 		description: payload.description ? payload.description : "",
-		location: payload.location,
+		location: LocationTypes[payload.location.toLocaleUpperCase()],
 		price: payload.price,
 		paymentType: "IN_PERSON",
 		serviceType: "CLASS",
 		businessId: payload.businessId,
+		image: [...payload.images],
 	};
 
 	return {
@@ -51,6 +52,8 @@ function toClassOutput(classData: ClassDocument): ClassOutput {
 		businessId: classData.service.businessId,
 		createdAt: classData.createdAt,
 		updatedAt: classData.updatedAt,
+		serviceId: classData.service.id,
+		images: classData.service.images.map((s) => s.image.image),
 	};
 }
 

@@ -1,4 +1,4 @@
-import { PaymentType } from "@prisma/client";
+import { PaymentType, ServiceType, LocationTypes } from "@prisma/client";
 
 import { ServiceInput } from "../service/service.interface";
 import {
@@ -12,11 +12,12 @@ function toAppointmentInput(payload: AppointmentServiceDto): AppointmentInput {
 	const serviceInformation: ServiceInput = {
 		name: payload.name,
 		description: payload.description ? payload.description : "",
-		location: payload.location,
+		location: LocationTypes[payload.location.toLocaleUpperCase()],
 		price: payload.price,
 		paymentType: getPaymentAcceptType(payload.paymentAcceptType),
-		serviceType: "APPOINTMENT",
+		serviceType: ServiceType.APPOINTMENT,
 		businessId: payload.businessId,
+		image: [...payload.images],
 	};
 
 	return {
@@ -28,6 +29,7 @@ function toAppointmentInput(payload: AppointmentServiceDto): AppointmentInput {
 }
 
 function toAppointmentOutput(appointment: AppointmentDocument): AppointmentOutput {
+	console.log({ images: appointment.service.images });
 	return {
 		id: appointment.id,
 		name: appointment.service.name,
@@ -42,6 +44,8 @@ function toAppointmentOutput(appointment: AppointmentDocument): AppointmentOutpu
 		createdAt: appointment.createdAt,
 		businessId: appointment.service.businessId,
 		serviceType: appointment.service.serviceType,
+		serviceId: appointment.service.id,
+		images: appointment.service.images.map((s) => s.image.image),
 	};
 }
 

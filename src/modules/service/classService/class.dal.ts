@@ -20,15 +20,37 @@ async function create(payload: ClassInput): Promise<ClassDocument> {
 					price: payload.service.price,
 					business: { connect: { id: payload.service.businessId } },
 					serviceType: payload.service.serviceType,
+					images:
+						payload.service?.image.length !== 0
+							? {
+									create: payload.service?.image.map((imageUrl) => ({
+										image: {
+											create: {
+												image: imageUrl,
+											},
+										},
+									})),
+							  }
+							: undefined,
 				},
 			},
 			repeat: {
 				create: payload.repeat,
 			},
 		},
-		include: { service: true, repeat: true },
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+			repeat: true,
+		},
 	});
-	console.log("In DAL :: return => ", newAppointment);
 	return newAppointment;
 }
 
@@ -37,7 +59,18 @@ async function getById(id: number): Promise<ClassDocument> {
 		where: {
 			id: id,
 		},
-		include: { service: true, repeat: true },
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+			repeat: true,
+		},
 	});
 	if (!targetClass) throw Error(ErrorCodes.NotFound + `No Class Found with Id : ${id}`);
 	return targetClass;
@@ -57,24 +90,69 @@ async function update(id: number, payload: ClassInput): Promise<ClassDocument> {
 			startDateAndTime: payload.startDateAndTime,
 			endDate: payload.endDate,
 			service: {
-				update: payload.service,
+				update: {
+					name: payload.service.name,
+					description: payload.service.description,
+					location: payload.service.location,
+					price: payload.service.price,
+					paymentType: payload.service.paymentType,
+					serviceType: payload.service.serviceType,
+				},
 			},
 			repeat: {
 				update: payload.repeat,
 			},
 		},
-		include: { service: true, repeat: true },
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+			repeat: true,
+		},
 	});
 	return updatedClass;
 }
 
 async function getAll(): Promise<Array<ClassDocument>> {
-	const classList = await prisma.class.findMany({ include: { service: true, repeat: true } });
+	const classList = await prisma.class.findMany({
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+			repeat: true,
+		},
+	});
 	return classList;
 }
 
 async function getAllbyFilter(filter: Prisma.ClassFindManyArgs): Promise<Array<ClassDocument>> {
-	const classList = await prisma.class.findMany({ ...filter, include: { service: true, repeat: true } });
+	const classList = await prisma.class.findMany({
+		...filter,
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+			repeat: true,
+		},
+	});
 	return classList;
 }
 

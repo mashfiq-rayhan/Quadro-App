@@ -68,8 +68,8 @@ async function checkAvailability(serviceId: number): Promise<boolean> {
 	return true;
 }
 
-async function getOrderAnalytics(startDate: string, endDate: string) {
-	return await orderDal.orderAnalytics(startDate, endDate);
+async function getOrderAnalytics(startDate: string, endDate: string, businessId: number) {
+	return await orderDal.orderAnalytics(startDate, endDate, businessId);
 }
 
 const orderService = {

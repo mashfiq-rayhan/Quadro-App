@@ -11,7 +11,7 @@ orderRouter.get("/health", [requireUserHandler], (_, res) => res.status(200).sen
 
 orderRouter.get("/", [requireUserHandler], orderController.handelGetAllByUser);
 
-orderRouter.get("/analytics", orderController.handelAnalytics);
+orderRouter.get("/analytics", [requireUserHandler], orderController.handelAnalytics);
 
 orderRouter.get("/client/:id", [requireUserHandler], orderController.handelGetAllByClient);
 

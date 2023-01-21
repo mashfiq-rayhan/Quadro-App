@@ -4,7 +4,6 @@ import prisma from "@providers/prisma.provider";
 import { Prisma } from "@prisma/client";
 
 async function create(payload: AppointmentInput): Promise<AppointmentDocument> {
-	console.log("payload ::", payload);
 	const newAppointment = await prisma.appointment.create({
 		data: {
 			duration: payload.duration,
@@ -18,14 +17,42 @@ async function create(payload: AppointmentInput): Promise<AppointmentDocument> {
 					price: payload.service.price,
 					paymentType: payload.service.paymentType,
 					serviceType: payload.service.serviceType,
-
+					// image: body.services?.length
+					// 	? {
+					// 			create: body.services.map((s) => ({
+					// 				service: { connect: { id: s } },
+					// 				assignedBy: { connect: { id: userId } },
+					// 			})),
+					// 	  }
+					// 	: undefined,
+					images:
+						payload.service?.image.length !== 0
+							? {
+									create: payload.service?.image.map((imageUrl) => ({
+										image: {
+											create: {
+												image: imageUrl,
+											},
+										},
+									})),
+							  }
+							: undefined,
 					business: { connect: { id: payload.service.businessId } },
 				},
 			},
 		},
-		include: { service: true },
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+		},
 	});
-
 	return newAppointment;
 }
 
@@ -34,7 +61,17 @@ async function getById(id: number): Promise<AppointmentDocument> {
 		where: {
 			id: id,
 		},
-		include: { service: true },
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+		},
 	});
 	if (!targetAppointment) throw Error(ErrorCodes.NotFound + ` No Appointment Found with Id : ${id}`);
 	return targetAppointment;
@@ -64,25 +101,73 @@ async function update(id: number, payload: AppointmentInput): Promise<Appointmen
 				},
 			},
 		},
-		include: { service: true },
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+		},
 	});
 
 	return updatedAppointment;
 }
 
 async function getAll(): Promise<Array<AppointmentDocument>> {
-	const appointmentsList = await prisma.appointment.findMany({ include: { service: true } });
+	const appointmentsList = await prisma.appointment.findMany({
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+		},
+	});
 	return appointmentsList;
 }
 
 async function getAllbyFilter(filter: Prisma.AppointmentFindManyArgs): Promise<Array<AppointmentDocument>> {
-	const appointmentsList = await prisma.appointment.findMany({ ...filter, include: { service: true } });
+	const appointmentsList = await prisma.appointment.findMany({
+		...filter,
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+		},
+	});
 	return appointmentsList;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function getbyFilter(filter: Prisma.AppointmentFindFirstArgsBase): Promise<AppointmentDocument | any> {
-	const targetAppointment = await prisma.appointment.findFirst({ ...filter, include: { service: true } });
+	const targetAppointment = await prisma.appointment.findFirst({
+		...filter,
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+		},
+	});
 	return targetAppointment;
 }
 
@@ -103,7 +188,20 @@ async function deleteById(id: number): Promise<void> {
 }
 
 async function getAppointment(filter: Prisma.AppointmentFindFirstArgs): Promise<AppointmentDocument | boolean> {
-	const targetAppointment = await prisma.appointment.findFirst({ ...filter, include: { service: true } });
+	const targetAppointment = await prisma.appointment.findFirst({
+		...filter,
+		include: {
+			service: {
+				include: {
+					images: {
+						include: {
+							image: true,
+						},
+					},
+				},
+			},
+		},
+	});
 	if (!targetAppointment) return false;
 	return targetAppointment;
 }
