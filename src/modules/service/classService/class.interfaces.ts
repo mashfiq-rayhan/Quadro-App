@@ -40,7 +40,7 @@ export interface ClassDto extends Omit<CreateClassDto, "location"> {
 	duration: number;
 	description?: string;
 	published?: boolean;
-	location: LocationTypes;
+	location: number;
 	images: Array<string>;
 }
 

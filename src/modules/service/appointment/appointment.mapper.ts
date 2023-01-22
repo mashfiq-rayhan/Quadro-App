@@ -12,12 +12,13 @@ function toAppointmentInput(payload: AppointmentServiceDto): AppointmentInput {
 	const serviceInformation: ServiceInput = {
 		name: payload.name,
 		description: payload.description ? payload.description : "",
-		location: LocationTypes[payload.location.toLocaleUpperCase()],
+		location: convertLocationValue(payload.location),
 		price: payload.price,
 		paymentType: getPaymentAcceptType(payload.paymentAcceptType),
 		serviceType: ServiceType.APPOINTMENT,
 		businessId: payload.businessId,
-		image: [...payload.images],
+		image: payload.images && payload.images.length !== 0 ? [...payload.images] : [],
+		locationDescription: payload.locationDescription,
 	};
 
 	return {
@@ -45,6 +46,7 @@ function toAppointmentOutput(appointment: AppointmentDocument): AppointmentOutpu
 		businessId: appointment.service.businessId,
 		serviceType: appointment.service.serviceType,
 		serviceId: appointment.service.id,
+		locationDescription: appointment.service.locationDescription,
 		images: appointment.service.images.map((s) => s.image.image),
 	};
 }
@@ -57,6 +59,21 @@ function getPaymentAcceptType(data: string): PaymentType {
 			return PaymentType.ONLINE;
 		default:
 			return PaymentType.IN_PERSON;
+	}
+}
+
+function convertLocationValue(value: number): LocationTypes {
+	switch (value) {
+		case 1:
+			return LocationTypes.BUSINESS;
+		case 2:
+			return LocationTypes.CLIENT;
+		case 3:
+			return LocationTypes.ONLINE;
+		case 4:
+			return LocationTypes.CUSTOM;
+		default:
+			return LocationTypes.BUSINESS;
 	}
 }
 

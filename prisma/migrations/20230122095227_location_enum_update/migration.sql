@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `services` MODIFY `location` ENUM('CLIENT', 'BUSINESS', 'ONLINE', 'CUSTOM') NULL DEFAULT 'BUSINESS';

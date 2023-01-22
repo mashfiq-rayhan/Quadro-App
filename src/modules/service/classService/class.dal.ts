@@ -20,6 +20,7 @@ async function create(payload: ClassInput): Promise<ClassDocument> {
 					price: payload.service.price,
 					business: { connect: { id: payload.service.businessId } },
 					serviceType: payload.service.serviceType,
+					locationDescription: payload.service.locationDescription,
 					images:
 						payload.service?.image.length !== 0
 							? {

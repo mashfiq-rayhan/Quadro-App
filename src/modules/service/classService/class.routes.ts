@@ -15,7 +15,7 @@ classRouter.get("/info", (_, res) =>
 			info: ` ------ Response object structure will be same as Request object `,
 			expectedRequestObject: {
 				name: "string",
-				location: `enum default : empty BUSINESS |  accepted values : [ CLIENT ,BUSINESS, ONLINE ] `,
+				location: `enum default : empty BUSINESS |  accepted values : [1 : BUSINESS, 2 : CLIENT, 3 : ONLINE, 4 : CUSTOM] `,
 				description: `string (optional) default : empty string `,
 				price: "number",
 				maxNumberOfParticipants: "number",

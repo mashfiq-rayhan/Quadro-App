@@ -12,12 +12,13 @@ function toClassInput(payload: ClassServiceDto): ClassInput {
 	const serviceInformation: ServiceInput = {
 		name: payload.name,
 		description: payload.description ? payload.description : "",
-		location: LocationTypes[payload.location.toLocaleUpperCase()],
+		location: convertLocationValue(payload.location),
 		price: payload.price,
 		paymentType: "IN_PERSON",
 		serviceType: "CLASS",
 		businessId: payload.businessId,
-		image: [...payload.images],
+		image: payload.images && payload.images?.length !== 0 ? [...payload.images] : [],
+		locationDescription: payload.locationDescription,
 	};
 
 	return {
@@ -53,8 +54,24 @@ function toClassOutput(classData: ClassDocument): ClassOutput {
 		createdAt: classData.createdAt,
 		updatedAt: classData.updatedAt,
 		serviceId: classData.service.id,
+		locationDescription: classData.service.locationDescription,
 		images: classData.service.images.map((s) => s.image.image),
 	};
+}
+
+function convertLocationValue(value: number): LocationTypes {
+	switch (value) {
+		case 1:
+			return LocationTypes.BUSINESS;
+		case 2:
+			return LocationTypes.CLIENT;
+		case 3:
+			return LocationTypes.ONLINE;
+		case 4:
+			return LocationTypes.CUSTOM;
+		default:
+			return LocationTypes.BUSINESS;
+	}
 }
 
 function classRepeatMapper(payload: Array<string>): Omit<ClassRepeatInput, "week"> {

@@ -39,6 +39,7 @@ enum LocationTypes {
   CLIENT
   BUSINESS
   ONLINE
+  CUSTOM
 }
 
 model User {
@@ -144,6 +145,9 @@ model Service {
   price       Float
   paymentType PaymentType    @default(IN_PERSON)
   serviceType ServiceType
+
+
+  locationDescription String?
 
   business   BusinessInfoSetting @relation(fields: [businessId], references: [id])
   businessId Int

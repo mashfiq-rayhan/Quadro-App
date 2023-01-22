@@ -17,6 +17,7 @@ async function create(payload: AppointmentInput): Promise<AppointmentDocument> {
 					price: payload.service.price,
 					paymentType: payload.service.paymentType,
 					serviceType: payload.service.serviceType,
+					locationDescription: payload.service.locationDescription,
 					// image: body.services?.length
 					// 	? {
 					// 			create: body.services.map((s) => ({

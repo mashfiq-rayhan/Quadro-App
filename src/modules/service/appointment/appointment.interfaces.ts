@@ -29,7 +29,7 @@ export interface AppointmentDto extends Omit<CreateAppointmentDto, "location"> {
 	depositAmount?: number;
 	description?: string;
 	published?: boolean;
-	location: LocationTypes;
+	location: number;
 	images: Array<string>;
 }
 

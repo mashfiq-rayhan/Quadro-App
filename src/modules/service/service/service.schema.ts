@@ -6,30 +6,23 @@ export const createServiceSchema = object({
 		required_error: "Name is required.",
 		invalid_type_error: "Name must be a String",
 	}),
-	location: string({
+	location: number({
 		required_error: "Location is required.",
-		invalid_type_error: "Location must be a String",
+		invalid_type_error: "Location must be a number",
 	}).refine((data) => checkLocation(data), {
-		message: "Invalid Location Type",
+		message: "Invalid Location Value",
 		path: ["location"],
 	}),
 	price: number({
 		required_error: "Price is required",
 		invalid_type_error: "Price must be a number",
 	}),
+	locationDescription: string().optional(),
 });
 
 export type CreateServiceDto = TypeOf<typeof createServiceSchema>;
 
-function checkLocation(location): boolean {
-	switch (location.toUpperCase()) {
-		case LocationTypes.BUSINESS:
-			return true;
-		case LocationTypes.ONLINE:
-			return true;
-		case LocationTypes.CLIENT:
-			return true;
-		default:
-			return false;
-	}
+function checkLocation(location: number): boolean {
+	if (location in [1, 2, 3, 4]) return true;
+	return false;
 }
