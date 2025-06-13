@@ -1,5 +1,9 @@
 # Service api
 
+Collecting workspace informationHere’s a concise description you can add to your README:
+
+> Quadro App is a modern SaaS platform designed to help businesses digitize their operations. Built with Node.js, Express, TypeScript, and MongoDB, it offers robust authentication, user management, subscription plans, business info management, and real-time features via WebSockets. The app integrates with AWS for storage, supports OAuth with Google, and provides a modular, scalable architecture for rapid feature development and deployment.
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
