@@ -4,6 +4,32 @@ A concise description README:
 
 > Quadro App is a modern SaaS platform designed to help businesses digitize their operations. Built with Node.js, Express, TypeScript, and MongoDB, it offers robust authentication, user management, subscription plans, business info management, and real-time features via WebSockets. The app integrates with AWS for storage, supports OAuth with Google, and provides a modular, scalable architecture for rapid feature development and deployment.
 
+## Project Description
+
+Quadro-App is a scalable, modular service API built with TypeScript and Express.js, designed for rapid backend development. It provides a robust foundation for building RESTful APIs, real-time socket communication, and integrates with modern tools and best practices for code quality and maintainability.
+
+### Key Features
+
+- **TypeScript-first:** Strong typing and modern JavaScript features.
+- **Express.js Core:** Fast, unopinionated, and flexible web framework.
+- **Socket.IO Integration:** Real-time communication support.
+- **Configurable:** Uses centralized configuration management.
+- **Authentication & Authorization:** Built-in user and auth modules.
+- **Validation:** Request validation with Zod and class-validator.
+- **Logging:** Structured logging with Pino.
+- **Database Ready:** Prisma ORM integration for database management.
+- **Testing & Linting:** Pre-configured with Jest, ESLint, Prettier, and Husky.
+- **Docker Support:** Ready-to-use Dockerfile for containerization.
+- **Extensive Documentation:** Step-by-step guides in the `docs/` folder.
+
+### Use Cases
+
+- Building RESTful APIs for web and mobile applications
+- Real-time apps with WebSocket support
+- Rapid prototyping and scalable backend services
+
+For installation and usage instructions, see the [docs](docs/) folder.
+
 ## Getting started
 
 To make it easy for you to get started with GitLab, here's a list of recommended next steps.
