@@ -42,7 +42,7 @@ Quadro-App is a modular, scalable service API platform built with TypeScript and
 
 1. Clone the repository and install dependencies:
    ```bash
-   git clone https://github.com/your-username/Quadro-App.git
+   git clone https://github.com/mashfiq-rayhan/Quadro-App.git
    cd Quadro-App-master
    npm install
    ```
